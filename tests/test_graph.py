@@ -86,6 +86,26 @@ class TestGraph(unittest.TestCase):
         matches = find_symbol(self.graph, "does_not_exist_anywhere")
         self.assertEqual(matches, [])
 
+    def test_oop_self_call_resolves(self):
+        resolved = {
+            (u, v) for u, v, d in self.graph.edges(data=True) if d["confidence"] == "resolved"
+        }
+        self.assertIn(("oop_pkg.derived.Dog.bark", "oop_pkg.derived.Dog.play"), resolved)
+
+    def test_oop_inherited_call_resolves(self):
+        resolved = {
+            (u, v) for u, v, d in self.graph.edges(data=True) if d["confidence"] == "resolved"
+        }
+        self.assertIn(("oop_pkg.derived.Dog.play", "oop_pkg.base.Animal.eat"), resolved)
+
+    def test_oop_chained_call_is_unresolved(self):
+        unresolved = {
+            (u, v) for u, v, d in self.graph.edges(data=True) if d["confidence"] == "unresolved"
+        }
+        targets = [v for u, v in unresolved if u == "oop_pkg.derived.Dog.play" and "squeak" in v]
+        self.assertTrue(len(targets) > 0)
+        self.assertIn("dynamic attribute target, not statically resolvable", targets[0])
+
 
 if __name__ == "__main__":
     unittest.main()
