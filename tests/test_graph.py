@@ -9,7 +9,7 @@ and runs TestCase classes just fine.
 from pathlib import Path
 import unittest
 
-from riftline.graph import build_graph, blast_radius, hotspots, find_symbol
+from riftline.graph import build_graph, blast_radius, hotspots, find_symbol, merged_blast_radius
 
 FIXTURES = Path(__file__).parent.parent / "fixtures"
 
@@ -105,6 +105,54 @@ class TestGraph(unittest.TestCase):
         targets = [v for u, v in unresolved if u == "oop_pkg.derived.Dog.play" and "squeak" in v]
         self.assertTrue(len(targets) > 0)
         self.assertIn("dynamic attribute target, not statically resolvable", targets[0])
+
+
+    # ------------------------------------------------------------------
+    # merged_blast_radius: multi-target deduplication
+    # ------------------------------------------------------------------
+
+    def test_merged_blast_radius_deduplicates_shared_caller(self):
+        """
+        mini_pkg dependency chain:  core <- utils <- main <- app
+
+        blast_radius(core)  = {utils, main, app}
+        blast_radius(utils) = {main, app}
+
+        If both core and utils are "changed functions", main and app each
+        appear in BOTH individual radii.  merged_blast_radius must return
+        them exactly once, not twice.
+        """
+        core = "mini_pkg.core.low_level"
+        utils = "mini_pkg.utils.helper"
+        merged = merged_blast_radius(self.graph, [core, utils])
+
+        # Shared callers must appear exactly once (set semantics guarantee this)
+        self.assertIn("mini_pkg.main.foo", merged)
+        self.assertIn("mini_pkg.app.run", merged)
+
+        # The merged result is a plain set — verify no duplicates by checking
+        # that the count matches a manually constructed union.
+        expected = (
+            blast_radius(self.graph, core) | blast_radius(self.graph, utils)
+        )
+        self.assertEqual(merged, expected)
+
+    def test_merged_blast_radius_single_target_matches_blast_radius(self):
+        """merged_blast_radius with one target must equal blast_radius exactly."""
+        target = "mini_pkg.core.low_level"
+        self.assertEqual(
+            merged_blast_radius(self.graph, [target]),
+            blast_radius(self.graph, target),
+        )
+
+    def test_merged_blast_radius_empty_targets_returns_empty_set(self):
+        """No targets => empty set (nothing changed, nothing affected)."""
+        self.assertEqual(merged_blast_radius(self.graph, []), set())
+
+    def test_merged_blast_radius_unknown_target_raises_keyerror(self):
+        """Any unknown target must raise KeyError, same as blast_radius."""
+        with self.assertRaises(KeyError):
+            merged_blast_radius(self.graph, ["mini_pkg.does.not.exist"])
 
 
 if __name__ == "__main__":

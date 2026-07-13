@@ -5,6 +5,7 @@ and builds the dependency graph the rest of the tool queries.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Iterable
 
 import networkx as nx
 
@@ -51,6 +52,25 @@ def blast_radius(graph: nx.DiGraph, target: str) -> set[str]:
             f"'{target}' not found in graph. Run 'riftline scan' first or check the symbol name."
         )
     return nx.ancestors(graph, target)
+
+
+def merged_blast_radius(graph: nx.DiGraph, targets: Iterable[str]) -> set[str]:
+    """Union of blast radii for multiple target functions, deduplicated.
+
+    Computes blast_radius() for each target and merges the results into a
+    single set.  A function that transitively calls two different targets
+    will appear exactly once in the output, never twice.
+
+    Raises KeyError (with the same message as blast_radius) if any target
+    is not present in the graph.
+
+    The existing single-symbol blast_radius() function is unchanged --
+    this is an additive helper for the multi-symbol / diff workflow.
+    """
+    merged: set[str] = set()
+    for target in targets:
+        merged |= blast_radius(graph, target)   # KeyError propagates unchanged
+    return merged
 
 
 def function_at_line(graph: nx.DiGraph, file: str, lineno: int) -> str | None:

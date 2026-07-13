@@ -1,2 +1,3 @@
 __pycache__/
 *.egg-info/
+fixtures/diff_repo/.git/

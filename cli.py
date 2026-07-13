@@ -98,9 +98,63 @@ def cmd_impact(args: argparse.Namespace) -> None:
 
 
 def cmd_diff(args: argparse.Namespace) -> None:
-    print("Not implemented yet -- planned for Week 2 (git integration).")
-    print("For now, use: riftline hotspots   (no name needed)")
-    print("          or: riftline impact <name or partial name>")
+    """Map a git diff to the set of functions/methods whose bodies changed,
+    and show the combined blast radius of those functions."""
+    # 1. Path validation first
+    root = _validated_root(args.path)
+
+    # 2. Git repository validation
+    from .git_diff import find_changed_functions, _assert_git_repo
+    _assert_git_repo(root)
+
+    ref_old: str = args.ref_old
+    ref_new: str = args.ref_new
+
+    # 3. Find changed functions
+    changed = find_changed_functions(root, ref_old, ref_new)
+
+    if not changed:
+        print(
+            f"No Python function changes detected between "
+            f"'{ref_old}' and '{ref_new}'."
+        )
+        return
+
+    # Print changed functions line (like matching symbol in impact)
+    changed_fqns_str = ", ".join(sorted(fn.fqn for fn in changed))
+    print(f"(changed functions: {changed_fqns_str})")
+
+    # 4. Compute merged, deduplicated blast radius
+    from .graph import build_graph, merged_blast_radius
+
+    try:
+        graph = build_graph(root)
+    except SyntaxError as exc:
+        print(f"\nWarning: could not build full graph — a file in '{root}' has a syntax error:")
+        print(f"  {exc}")
+        print("  Impact analysis skipped. Fix the syntax error and re-run.")
+        return
+
+    # Gather only the changed FQNs that actually exist in the graph.
+    known_targets = [fn.fqn for fn in changed if fn.fqn in graph]
+    skipped = [fn.fqn for fn in changed if fn.fqn not in graph]
+    if skipped:
+        for s in skipped:
+            print(f"  (note: '{s}' not found in graph — may be newly added; skipped for impact)")
+
+    all_affected = merged_blast_radius(graph, known_targets)
+
+    # Exclude the changed functions themselves from the blast-radius listing.
+    changed_fqns = {fn.fqn for fn in changed}
+    display = sorted(all_affected - changed_fqns)
+
+    if not display:
+        print(f"No known dependents of changed functions between {ref_old} and {ref_new}. Safe to change in isolation.")
+        return
+
+    print(f"Blast radius of changed functions between {ref_old} and {ref_new}:")
+    for name in display:
+        print(f"  - {name}")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -130,7 +184,27 @@ def build_parser() -> argparse.ArgumentParser:
     p_impact.add_argument("--path", default=".", help="Root of the package to scan.")
     p_impact.set_defaults(func=cmd_impact)
 
-    p_diff = sub.add_parser("diff", help="Compute impact from a git diff (Week 2+).")
+    p_diff = sub.add_parser(
+        "diff",
+        help="Map a git diff to changed functions and (optionally) their blast radius.",
+    )
+    p_diff.add_argument(
+        "ref_old",
+        nargs="?",
+        default="HEAD~1",
+        help="Older git ref to diff from (default: HEAD~1).",
+    )
+    p_diff.add_argument(
+        "ref_new",
+        nargs="?",
+        default="HEAD",
+        help="Newer git ref to diff to (default: HEAD).",
+    )
+    p_diff.add_argument(
+        "--path",
+        default=".",
+        help="Root of the git repository / package to scan (default: current directory).",
+    )
     p_diff.set_defaults(func=cmd_diff)
 
     return parser
