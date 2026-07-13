@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "riftline"
+version = "0.1.0"
+description = "Blast-radius analyzer: know what breaks before you break it."
+requires-python = ">=3.10"
+dependencies = [
+    "networkx>=3.0",
+]
+
+[project.scripts]
+riftline = "riftline.cli:main"
+
+[tool.setuptools]
+packages = ["riftline"]
