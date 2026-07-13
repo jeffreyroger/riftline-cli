@@ -74,11 +74,7 @@ graph/resolution logic doesn't change.
 
 ## Known limitations (by design, not oversight)
 
-- **Bare-name calls only.** `foo(x)` resolves; `h.process(x)` does not —
-  verifying an attribute exists on an imported symbol needs type inference,
-  which is out of scope for V1. Attribute calls are currently left
-  unresolved rather than guessed at. This is the single highest-value
-  extension for Week 2.
+- **Attribute/method-call resolution limits.** Method-call resolution is supported for `self` calls and single inheritance chains. Multiple inheritance and dynamic attribute targets (e.g. `self.attr.method()`, or variables with untyped sources) remain unresolved-by-design, appearing in the graph as unresolved edges with clear reason annotations.
 - **No git diff integration yet.** `riftline diff` is a stub. `graph.py`
   already has `function_at_line()` ready for it — git diff gives you
   changed line numbers, and every function's line span was already

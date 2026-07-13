@@ -9,7 +9,7 @@ from pathlib import Path
 import networkx as nx
 
 from .parser import parse
-from .resolver import module_name_for_file, resolve_calls_for_file
+from .resolver import module_name_for_file, resolve_calls_for_file, build_class_method_table
 
 
 def find_python_files(root: Path) -> list[Path]:
@@ -26,6 +26,8 @@ def build_graph(root: Path) -> nx.DiGraph:
         parsed_by_module[module] = (path, parse(path))
 
     all_symbols = {mod: parsed.symbols for mod, (_, parsed) in parsed_by_module.items()}
+    all_parsed_files = [parsed for _, parsed in parsed_by_module.values()]
+    class_method_table = build_class_method_table(all_parsed_files, root=root)
 
     # Pass 2: resolve every call in every file against every other file's
     # symbol table, and add each result as a graph edge.
@@ -36,7 +38,7 @@ def build_graph(root: Path) -> nx.DiGraph:
                 f"{module}.{fn.name}", file=str(path), lineno=fn.lineno, end_lineno=fn.end_lineno
             )
 
-        for call in resolve_calls_for_file(parsed, module, all_symbols):
+        for call in resolve_calls_for_file(parsed, module, all_symbols, class_method_table):
             graph.add_edge(call.caller, call.callee, confidence=call.confidence)
 
     return graph
