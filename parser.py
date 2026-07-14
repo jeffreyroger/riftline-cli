@@ -62,6 +62,27 @@ class ClassInfo:
     bases: list[str]           # declared base class names, e.g. ["Animal"]
 
 
+@dataclass(frozen=True)
+class ReExport:
+    """One re-export entry found in an __init__.py file.
+
+    Represents a statement like ``from .submodule import thing`` inside an
+    __init__.py, which makes ``thing`` part of the package's public surface
+    (importable as ``package.thing``) without ``thing`` being *defined* in
+    the __init__.py itself.
+
+    Star imports (``from .submodule import *``) are captured with
+    ``is_star=True`` and ``local_name="*"``; the resolver will flag them
+    unresolved rather than attempting to enumerate their exports.
+    """
+
+    local_name: str    # name exposed in the package namespace, e.g. "Foo" (or "*")
+    origin_module: str | None  # relative module text after the dots, e.g. "core" (None for "from . import x")
+    origin_name: str   # name as defined in the originating module (same as local_name unless aliased)
+    level: int         # leading dots of the relative import (always >= 1 for re-exports)
+    is_star: bool      # True when this is a "from .sub import *" statement
+
+
 @dataclass
 class ParsedFile:
     path: Path
@@ -69,6 +90,7 @@ class ParsedFile:
     symbols: set[str]                   # names defined at top level (functions, classes)
     functions: list[FunctionInfo]       # every function/method + its raw calls
     classes: list[ClassInfo] = field(default_factory=list)
+    reexports: list[ReExport] = field(default_factory=list)  # populated for __init__.py files only
 
 
 def parse_file(path: Path) -> ast.Module:
@@ -204,6 +226,59 @@ def extract_symbols(tree: ast.Module) -> set[str]:
     return symbols
 
 
+def extract_reexports(tree: ast.Module, path: Path) -> list[ReExport]:
+    """Extract re-export entries from an __init__.py file.
+
+    Only called when ``path.name == "__init__.py"``.  Every relative
+    ``from .submodule import name`` in an __init__.py is a potential
+    re-export: it pulls a name from a submodule into the package's
+    public namespace so callers can write ``from mypackage import name``.
+
+    Absolute imports (``import os``, ``from os import path``) are
+    intentionally excluded — they are not re-exporting anything from
+    within the package.
+
+    Star imports (``from .sub import *``) are captured with
+    ``is_star=True`` so the resolver can flag them explicitly rather
+    than silently ignoring them.
+    """
+    if path.name != "__init__.py":
+        return []
+
+    reexports: list[ReExport] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.ImportFrom):
+            continue
+        if node.level == 0:
+            # Absolute import — not a package-internal re-export.
+            continue
+
+        for alias in node.names:
+            if alias.name == "*":
+                reexports.append(
+                    ReExport(
+                        local_name="*",
+                        origin_module=node.module,
+                        origin_name="*",
+                        level=node.level,
+                        is_star=True,
+                    )
+                )
+            else:
+                # The local name is the alias if present, otherwise the imported name.
+                local = alias.asname if alias.asname else alias.name
+                reexports.append(
+                    ReExport(
+                        local_name=local,
+                        origin_module=node.module,
+                        origin_name=alias.name,
+                        level=node.level,
+                        is_star=False,
+                    )
+                )
+    return reexports
+
+
 def extract_classes(tree: ast.Module) -> list[ClassInfo]:
     classes: list[ClassInfo] = []
 
@@ -230,4 +305,5 @@ def parse(path: Path) -> ParsedFile:
         symbols=extract_symbols(tree),
         functions=extract_functions(tree),
         classes=extract_classes(tree),
+        reexports=extract_reexports(tree, path),
     )
