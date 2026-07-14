@@ -28,6 +28,8 @@ def build_graph(root: Path) -> nx.DiGraph:
 
     all_symbols = {mod: parsed.symbols for mod, (_, parsed) in parsed_by_module.items()}
     all_parsed_files = [parsed for _, parsed in parsed_by_module.values()]
+    # Build module->ParsedFile map so the resolver can follow __init__.py re-export chains.
+    all_parsed_dict = {mod: parsed for mod, (_, parsed) in parsed_by_module.items()}
     class_method_table = build_class_method_table(all_parsed_files, root=root)
 
     # Pass 2: resolve every call in every file against every other file's
@@ -39,7 +41,9 @@ def build_graph(root: Path) -> nx.DiGraph:
                 f"{module}.{fn.name}", file=str(path), lineno=fn.lineno, end_lineno=fn.end_lineno
             )
 
-        for call in resolve_calls_for_file(parsed, module, all_symbols, class_method_table):
+        for call in resolve_calls_for_file(
+            parsed, module, all_symbols, class_method_table, all_parsed=all_parsed_dict
+        ):
             graph.add_edge(call.caller, call.callee, confidence=call.confidence)
 
     return graph

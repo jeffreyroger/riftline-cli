@@ -150,10 +150,11 @@ parser.py   →  resolver.py  →  graph.py  →  cli.py
 python -m unittest discover -s tests -v
 ```
 
-Current count: **32 tests, all passing**.
+Current count: **39 tests, all passing**.
 
 ## Known limitations (by design)
 
+- **Star imports in re-exports** — star imports (e.g. `from .submodule import *`) in `__init__.py` files are not resolved statically and are explicitly flagged `unresolved`, consistent with the guiding principle of never guessing.
 - **Multiple inheritance** — `self.method()` resolution walks single-inheritance
   chains only.  Multiple inheritance is flagged `unresolved` with a clear reason,
   never guessed.
