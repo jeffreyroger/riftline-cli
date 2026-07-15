@@ -44,7 +44,7 @@ def build_graph(root: Path) -> nx.DiGraph:
         for call in resolve_calls_for_file(
             parsed, module, all_symbols, class_method_table, all_parsed=all_parsed_dict
         ):
-            graph.add_edge(call.caller, call.callee, confidence=call.confidence)
+            graph.add_edge(call.caller, call.callee, confidence=call.confidence, reason=call.reason)
 
     return graph
 

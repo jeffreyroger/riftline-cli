@@ -13,11 +13,34 @@ from .parser import ParsedFile
 
 
 def module_name_for_file(root: Path, path: Path) -> str:
-    """repo_root/mini_pkg/core.py -> 'mini_pkg.core'"""
+    """repo_root/mini_pkg/core.py -> 'mini_pkg.core'
+    
+    Special handling: if root itself is a package (contains __init__.py),
+    prepend the root directory name to all module names. This allows
+    'riftline scan mypkg' to work correctly, not just 'riftline scan .' or
+    'riftline scan parent_of_mypkg'. This is the most common real-world usage.
+    """
     rel = path.relative_to(root).with_suffix("")
     parts = list(rel.parts)
     if parts and parts[-1] == "__init__":
         parts = parts[:-1]
+    
+    # If root is itself a package, prepend the root directory name
+    # This handles the case where the user scans a package directly
+    if (root / "__init__.py").exists():
+        if not parts:
+            # Root-level __init__.py in a package scanned as its own root
+            return root.name
+        else:
+            # Other files in the package
+            return f"{root.name}.{'.'.join(parts)}"
+    
+    # Root is not a package; use computed path as-is
+    # (If parts is empty, this would be a bare __init__ at root level,
+    #  which shouldn't happen in normal layouts, but handle it defensively)
+    if not parts:
+        return root.name
+    
     return ".".join(parts)
 
 
@@ -82,7 +105,7 @@ def resolve_calls_for_file(
             resolved = False
             if attr_call.base == "self" and attr_call.enclosing_class is not None:
                 fq_class = f"{current_module}.{attr_call.enclosing_class}"
-                resolved_callee = _find_method_in_hierarchy(fq_class, attr_call.attr, class_method_table)
+                resolved_callee, resolution_reason = _find_method_in_hierarchy(fq_class, attr_call.attr, class_method_table)
                 if resolved_callee is not None:
                     results.append(ResolvedCall(
                         caller=caller_fqn,
@@ -91,13 +114,23 @@ def resolve_calls_for_file(
                         reason=None
                     ))
                     resolved = True
+                elif resolution_reason is not None:
+                    # Ambiguous or explicitly flagged as unresolved
+                    callee = f"unknown:self.{attr_call.attr}"
+                    results.append(ResolvedCall(
+                        caller=caller_fqn,
+                        callee=callee,
+                        confidence="unresolved",
+                        reason=resolution_reason
+                    ))
+                    resolved = True
 
             if not resolved:
                 if attr_call.base != "self":
                     reason = "dynamic attribute target, not statically resolvable"
                 else:
-                    reason = "method not defined on class X or its base classes"
-                callee = f"unknown:{attr_call.base}.{attr_call.attr} ({reason})"
+                    reason = "method not defined on class or its base classes"
+                callee = f"unknown:{attr_call.base}.{attr_call.attr}"
                 results.append(ResolvedCall(
                     caller=caller_fqn,
                     callee=callee,
@@ -272,27 +305,45 @@ def _find_method_in_hierarchy(
     method_name: str,
     table: dict[str, ClassMethods],
     visited: set[str] | None = None,
-) -> str | None:
-    """Find a method in a class or its base classes, recursively."""
+) -> tuple[str | None, str | None]:
+    """Find a method in a class or its base classes, recursively.
+    
+    Returns (fqn, reason) where:
+    - fqn is the fully-qualified method name if found unambiguously
+    - reason is an explanation if the method is ambiguous or not found
+    
+    If fqn is None, reason describes why (e.g., "ambiguous across multiple base classes").
+    If fqn is not None, reason is None.
+    """
     if visited is None:
         visited = set()
     if fq_class in visited:
-        return None
+        return None, None
     visited.add(fq_class)
 
     class_info = table.get(fq_class)
     if not class_info:
-        return None
+        return None, None
 
     if method_name in class_info.methods:
-        return f"{fq_class}.{method_name}"
+        return f"{fq_class}.{method_name}", None
 
+    # Search all base classes for the method, tracking which ones have it
+    matching_bases = []
     for base in class_info.bases:
-        res = _find_method_in_hierarchy(base, method_name, table, visited)
-        if res is not None:
-            return res
+        base_fqn, base_reason = _find_method_in_hierarchy(base, method_name, table, visited)
+        if base_fqn is not None:
+            matching_bases.append(base_fqn)
 
-    return None
+    if len(matching_bases) > 1:
+        # Ambiguous: method found in multiple base classes
+        base_names = ", ".join(b.rsplit(".", 1)[0] for b in matching_bases)
+        reason = f"ambiguous across multiple base classes: {base_names}"
+        return None, reason
+    elif len(matching_bases) == 1:
+        return matching_bases[0], None
+
+    return None, None
 
 
 def build_class_method_table(

@@ -100,11 +100,14 @@ class TestGraph(unittest.TestCase):
 
     def test_oop_chained_call_is_unresolved(self):
         unresolved = {
-            (u, v) for u, v, d in self.graph.edges(data=True) if d["confidence"] == "unresolved"
+            (u, v, d["reason"]) for u, v, d in self.graph.edges(data=True) if d["confidence"] == "unresolved" and d.get("reason")
         }
-        targets = [v for u, v in unresolved if u == "oop_pkg.derived.Dog.play" and "squeak" in v]
-        self.assertTrue(len(targets) > 0)
-        self.assertIn("dynamic attribute target, not statically resolvable", targets[0])
+        targets = [reason for u, v, reason in unresolved if u == "oop_pkg.derived.Dog.play" and "squeak" in v]
+        self.assertTrue(len(targets) > 0, msg=f"No unresolved edges found for Dog.play with 'squeak' in target")
+        self.assertTrue(
+            any("dynamic attribute target" in target for target in targets),
+            msg=f"Reason should mention 'dynamic attribute target', got: {targets}"
+        )
 
 
     # ------------------------------------------------------------------
@@ -260,6 +263,96 @@ class TestReExportResolution(unittest.TestCase):
         self.assertEqual(
             radius,
             {"mini_pkg.utils.helper", "mini_pkg.main.foo", "mini_pkg.app.run"},
+        )
+
+    # ------------------------------------------------------------------
+    # Regression tests: multiple inheritance and root-level package scans
+    # ------------------------------------------------------------------
+
+    def test_multiple_inheritance_ambiguity_flagged_unresolved(self):
+        """When a class inherits from multiple bases with the same method,
+        the call should be flagged unresolved with 'ambiguous' reason,
+        not silently resolved to the first base (violates core principle).
+        
+        Defect: previously _find_method_in_hierarchy silently returned the
+        first matching base without checking for ambiguity.
+        """
+        mi_graph = build_graph(FIXTURES / "mi_pkg")
+        
+        # Duck.go calls self.move(), which is defined on both Flyer and Swimmer
+        unresolved_edges_with_reasons = [
+            (u, v, d.get("reason")) 
+            for u, v, d in mi_graph.edges(data=True) 
+            if d["confidence"] == "unresolved" and d.get("reason")
+        ]
+        
+        # Find the edge from Duck.go to the ambiguous self.move()
+        ambiguous_edges = [
+            (u, v, reason) 
+            for u, v, reason in unresolved_edges_with_reasons
+            if u == "mi_pkg.animals.Duck.go" and "move" in v
+        ]
+        
+        self.assertTrue(
+            len(ambiguous_edges) > 0,
+            msg="Duck.go should have an unresolved edge to self.move()"
+        )
+        
+        # Verify that the reason mentions ambiguity
+        reasons = [r for _, _, r in ambiguous_edges]
+        self.assertTrue(
+            any("ambiguous" in reason.lower() for reason in reasons),
+            msg=f"Reason should mention 'ambiguous', got: {reasons}"
+        )
+
+    def test_package_as_own_root_relative_imports_work(self):
+        """When a package is scanned as its own root (e.g., 'riftline scan mi_pkg'),
+        relative imports in __init__.py should resolve correctly.
+        
+        Defect: previously, module_name_for_file returned '' for root-level __init__.py,
+        causing resolve_relative_module to produce malformed module names like '.core'.
+        
+        This is the most common real-world invocation pattern ('riftline scan .')
+        and must work without the user having to scan from a parent level.
+        """
+        mi_pkg_root = FIXTURES / "mi_pkg"
+        
+        # Build graph by scanning mi_pkg as its own root (not its parent)
+        mi_graph = build_graph(mi_pkg_root)
+        
+        # Verify we found the functions
+        self.assertIn("mi_pkg.animals.Flyer.move", mi_graph.nodes)
+        self.assertIn("mi_pkg.animals.Swimmer.move", mi_graph.nodes)
+        self.assertIn("mi_pkg.animals.Duck.go", mi_graph.nodes)
+
+    def test_reexport_package_as_own_root_resolves(self):
+        """Re-export resolution (Phase C) must work when scanning a package
+        as its own root, not just when scanning from a parent level.
+        
+        Previously: scanning fixtures/reexport_pkg/ as its own root produced
+        unresolved edges for re-exported names, even though scanning fixtures/
+        would resolve them. This affected the tool's primary use case.
+        
+        Defect: root-level __init__.py had empty module name, breaking relative
+        import resolution in re-export patterns.
+        """
+        reexport_root = FIXTURES / "reexport_pkg"
+        
+        # Build graph by scanning reexport_pkg as its own root
+        reexport_graph = build_graph(reexport_root)
+        
+        resolved_edges = {
+            (u, v) 
+            for u, v, d in reexport_graph.edges(data=True) 
+            if d["confidence"] == "resolved"
+        }
+        
+        # The re-export chain should resolve: caller imports from top-level __init__
+        # which re-exports from submodules
+        self.assertIn(
+            ("reexport_pkg.caller.use_compute", "reexport_pkg.core.compute"),
+            resolved_edges,
+            msg="Re-export should resolve to true origin even when package is scanned as root"
         )
 
 

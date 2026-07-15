@@ -16,3 +16,4 @@ riftline = "riftline.cli:main"
 
 [tool.setuptools]
 packages = ["riftline"]
+package-dir = {"riftline" = "."}
