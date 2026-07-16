@@ -72,8 +72,9 @@ pre-commit or pre-refactor safety check.
   environments.)
 
 ### 2.4 Assumptions
-- Analyzed code is syntactically valid Python (a `SyntaxError` on any
-  scanned file is currently unhandled — see FR-14).
+- A `SyntaxError` on an individual scanned file no longer aborts the whole
+  scan — it is caught, reported (which file, why), and the remaining files
+  are still scanned (see FR-14, now `[Implemented]`).
 - The scanned directory is a single logical package or set of packages
   under one root; cross-repo / cross-package-boundary resolution is out
   of scope (§7).
@@ -137,15 +138,13 @@ verify whether an imported name actually exists at its claimed origin.
 **FR-4** `[Implemented]` Call extraction shall recognize bare-name calls
 (`foo(x)`) only.
 
-**FR-5** `[Defect]` Attribute/method calls (`obj.method()`,
-`self.foo()`) are currently **silently dropped** during extraction — they
-never become a call, resolved or unresolved. This violates the guiding
-principle in §1.4 (an invisible call is worse than a flagged-unresolved
-one, because it produces false confidence: a function can appear to have
-zero blast radius when it actually has undetected dependents). **This must
-be fixed before FR-9 (method resolution) is built** — at minimum,
-attribute calls should surface as `unresolved` edges immediately, with
-FR-9 later upgrading a subset of them to `resolved`.
+**FR-5** `[Implemented]` Attribute/method calls (`obj.method()`,
+`self.foo()`) are surfaced as graph edges, resolved or explicitly
+unresolved, rather than being silently dropped during extraction. This
+preserves the guiding principle in §1.4: an invisible call is never treated
+as if it did not exist, and the resolver can later upgrade a subset of
+these edges to `resolved` when static inference is possible. It was fixed
+as part of Phase A / Task A1.
 
 ### 4.2 Resolution (`resolver.py`)
 
@@ -176,21 +175,29 @@ case, see §6.3.
 `confidence` field with only two legal values: `"resolved"` or
 `"unresolved"`. No third state (e.g. "probably", "likely") is permitted.
 
-**FR-9** `[Planned — Week 2, highest priority]` The system shall resolve
-`self.<method>()` calls within a class to that class's own method
-definitions, and `instance.<method>()` calls where `instance` is a
-parameter/local whose type can be statically inferred from a
-type-annotated signature or a direct constructor call in the same
-function. Where the type cannot be inferred, the call must remain
-`unresolved` (per §1.4) — this requirement explicitly does not authorize
-best-guess resolution when inference fails.
+**FR-9** `[Implemented]` The system shall resolve `self.<method>()`
+calls within a class to that class's own method definitions, and
+`instance.<method>()` calls where `instance` is a parameter/local whose
+type can be statically inferred from a type-annotated signature or a
+direct constructor call in the same function. Where the type cannot be
+inferred, the call remains `unresolved` (per §1.4) rather than being
+best-guessed. It was built across Phase A / Tasks A2-A6, including the
+explicit scope decision that multiple inheritance and dynamic attribute
+targets remain unresolved by design.
 
-**FR-10** `[Planned — Week 2]` Given a `git diff` (or a list of changed
-file+line-range pairs), the system shall map each changed range to the
+**FR-9a** `[Implemented]` The system shall resolve a call to a symbol
+that is imported into a target module only via re-export from an
+`__init__.py` file, including multi-level re-export chains, and shall keep
+the edge `unresolved` rather than guessing if the chain cannot be fully
+followed. This capability was implemented in Phase C / Tasks C1-C3.
+
+**FR-10** `[Implemented]` Given a `git diff` (or a list of changed
+file+line-range pairs), the system maps each changed range to the
 enclosing function via the already-implemented `function_at_line()`, then
-compute the union of blast radii for all directly-changed functions. This
-is the tool's primary intended workflow — a developer runs this against
-their working tree before committing.
+computes the union of blast radii for all directly-changed functions. This
+is the tool's primary intended workflow — a developer can run it against
+their working tree before committing. It was implemented in Phase B /
+Tasks B1-B4.
 
 ### 4.3 Graph construction & queries (`graph.py`)
 
@@ -214,10 +221,11 @@ This is the tool's "no symbol name required" general-purpose entry point.
 in `hotspots()` output or be queryable via `blast_radius()` as a target —
 they exist only as edge endpoints, not as first-class functions.
 
-**FR-14** `[Planned]` The system shall catch `SyntaxError` on individual
+**FR-14** `[Implemented]` The system shall catch `SyntaxError` on individual
 files during a scan, report which file failed and why, and continue
-scanning the remaining files rather than aborting the entire scan.
-Currently unhandled — a single unparseable file crashes the whole run.
+scanning the remaining files rather than aborting the entire scan. It was
+implemented in Task D1, backed by `fixtures/broken_syntax_pkg/` (one
+unparseable file alongside two valid, cross-file-dependent files).
 
 ### 4.4 CLI (`cli.py`)
 
@@ -244,18 +252,24 @@ condition failed) and exit with status 1. A scan must never report "0
 functions found" with exit code 0 when the real cause is an invalid path —
 this was a real defect found and fixed during initial testing (see §6.4).
 
-**FR-19** `[Planned — Week 2]` `riftline diff [--path P] [<git-ref>]`
-shall replace the current stub, implementing FR-10's workflow via the CLI.
+**FR-19** `[Implemented]` `riftline diff <base-ref> <head-ref> --path <dir>`
+implements FR-10's workflow via the CLI, returning a merged blast radius
+for all changed functions detected from the git diff. It was implemented
+in Phase B / Tasks B1-B4.
 
-**FR-20** `[Planned — Week 3]` `riftline export --format {mermaid,dot,json}`
+**FR-20** `[Implemented]` `riftline export --format {mermaid,dot,json}`
 shall serialize the current graph to the requested format for external
-visualization.
+visualization. It was implemented in Task D2 (`export.py`, kept separate
+from `graph.py` per NFR-5), with resolved/unresolved edges visually
+distinguished in every format.
 
-**FR-21** `[Planned — Week 3]` Given an affected function, the system
+**FR-21** `[Implemented]` Given an affected function, the system
 shall suggest a likely test file via naming convention (e.g.
 `mypkg/core.py` → `tests/test_core.py`), presented as a suggestion, not a
 verified fact — it must be visually distinguishable from a `resolved`
-graph edge.
+graph edge. It was implemented in Task D3 (`testmapper.py`), wired into
+`impact`/`diff` output under an explicit "unverified, naming-convention
+only" heading, and never added as a graph node or edge.
 
 ---
 
@@ -297,10 +311,13 @@ third-party dependencies beyond `networkx`. CLI ergonomics (`typer`,
 `rich`) and multi-language parsing (`tree-sitter`) are enhancements, not
 requirements for the core logic to function.
 
-**NFR-7 (Performance target — not yet benchmarked).** `[Planned]` The
-system should complete a full scan of a several-hundred-file repository in
-under a few seconds on a typical developer machine. No formal benchmark
-exists yet; this is a Week 3 deliverable (§7).
+**NFR-7 (Performance target).** `[Implemented]` The system should complete
+a full scan of a several-hundred-file repository in under a few seconds on
+a typical developer machine. Benchmarked in Task D4 against a real, external
+codebase (scrapy/scrapy, 446 files): ~1.0-1.1s wall-clock, well under target.
+See [docs/benchmark-results.md](docs/benchmark-results.md) for the full
+methodology, hand-checked sample results, and two findings surfaced (not
+fixed) during that benchmark.
 
 ---
 
@@ -361,11 +378,15 @@ single-file change once package installation is available.
 
 If you only read one section, read this one:
 
-- **Solid and tested today:** FR-1 through FR-4, FR-6 through FR-8, FR-11
-  through FR-13a, FR-15 through FR-18.
-- **Highest-priority next build:** FR-9 (method resolution) — but fix
-  FR-5 first, or FR-9 will be built on top of a silent data-loss bug.
-- **Second priority:** FR-10 / FR-19 (git diff workflow) — this is the
-  tool's actual intended primary use case; everything else supports it.
-- **Everything else in §7 and the Week 3/4 items are legitimately
-  lower-priority** and can be sequenced freely relative to each other.
+- **Solid and tested today:** FR-1 through FR-21 and NFR-1 through NFR-7 are
+  all `[Implemented]`. Week 3 (Tasks D0-D4) closed out FR-14 (SyntaxError
+  resilience), FR-20 (graph export), FR-21 (test-file suggestion), and
+  NFR-7 (real-world benchmark, see docs/benchmark-results.md).
+- **Known open items (not blocking, not fabricated):** the NFR-7 benchmark
+  surfaced two real findings that remain unfixed by design (out of scope
+  for a measurement task) — see docs/benchmark-results.md Finding 1
+  (cross-file constructor type-inference doesn't fire for FR-9) and
+  Finding 2 (resolved edges to locally-defined classes produce graph nodes
+  missing `file`/`lineno` metadata, per FR-11).
+- **Implemented bonus:** package re-export resolution is now covered by
+  FR-9a and verified as part of the Week 2 scope.

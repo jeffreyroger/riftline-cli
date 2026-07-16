@@ -16,6 +16,7 @@ riftline scan    <path>                      # graph summary: resolved/unresolve
 riftline hotspots <path> [--limit N]         # rank functions by blast-radius size
 riftline impact  <symbol> [--path <path>]   # blast radius of a single function
 riftline diff    <base-ref> <head-ref> [--path <path>]  # blast radius of a git diff
+riftline export  --format {mermaid,dot,json} [--path <path>] [--out <file>]  # serialize the graph
 ```
 
 ### `riftline scan`
@@ -118,6 +119,138 @@ Error: git ref 'mybranch' does not exist in the repository at '/path/to/repo'.
   Run 'git log --oneline' to see valid commits, or 'git branch -a' for branch names.
 ```
 
+### `riftline export`
+
+Serialize the current graph for visualization or README use.
+
+```bash
+riftline export --format json --path fixtures/mini_pkg
+```
+
+Example output (real output from the current implementation):
+
+```json
+{
+  "nodes": [
+    {
+      "id": "mini_pkg.app.run",
+      "label": "mini_pkg.app.run"
+    },
+    {
+      "id": "mini_pkg.core.low_level",
+      "label": "mini_pkg.core.low_level"
+    },
+    {
+      "id": "mini_pkg.main.foo",
+      "label": "mini_pkg.main.foo"
+    },
+    {
+      "id": "mini_pkg.utils.helper",
+      "label": "mini_pkg.utils.helper"
+    },
+    {
+      "id": "unknown:bar",
+      "label": "unknown:bar"
+    }
+  ],
+  "edges": [
+    {
+      "source": "mini_pkg.app.run",
+      "target": "mini_pkg.main.foo",
+      "confidence": "resolved"
+    },
+    {
+      "source": "mini_pkg.main.foo",
+      "target": "mini_pkg.utils.helper",
+      "confidence": "resolved"
+    },
+    {
+      "source": "mini_pkg.main.foo",
+      "target": "unknown:bar",
+      "confidence": "unresolved"
+    },
+    {
+      "source": "mini_pkg.utils.helper",
+      "target": "mini_pkg.core.low_level",
+      "confidence": "resolved"
+    }
+  ]
+}
+```
+
+```bash
+riftline export --format mermaid --path fixtures/mini_pkg
+```
+
+Example output:
+
+```text
+flowchart TD
+    mini_pkg_app_run["mini_pkg.app.run"]
+    mini_pkg_core_low_level["mini_pkg.core.low_level"]
+    mini_pkg_main_foo["mini_pkg.main.foo"]
+    mini_pkg_utils_helper["mini_pkg.utils.helper"]
+    unknown_bar["unknown:bar"]
+    mini_pkg_app_run --> mini_pkg_main_foo
+    mini_pkg_main_foo --> mini_pkg_utils_helper
+    mini_pkg_main_foo -.-> unknown_bar
+    mini_pkg_utils_helper --> mini_pkg_core_low_level
+```
+
+```bash
+riftline export --format dot --path fixtures/mini_pkg
+```
+
+Example output:
+
+```text
+digraph G {
+    mini_pkg_app_run [label="mini_pkg.app.run"];
+    mini_pkg_core_low_level [label="mini_pkg.core.low_level"];
+    mini_pkg_main_foo [label="mini_pkg.main.foo"];
+    mini_pkg_utils_helper [label="mini_pkg.utils.helper"];
+    unknown_bar [label="unknown:bar"];
+    mini_pkg_app_run -> mini_pkg_main_foo [color="#1f77b4", style="solid"];
+    mini_pkg_main_foo -> mini_pkg_utils_helper [color="#1f77b4", style="solid"];
+    mini_pkg_main_foo -> unknown_bar [color="#d62728", style="dashed"];
+    mini_pkg_utils_helper -> mini_pkg_core_low_level [color="#1f77b4", style="solid"];
+}
+```
+
+### Test-file suggestions (in `impact` and `diff` output)
+
+After the blast-radius listing, `impact` and `diff` print an additional,
+clearly separate section suggesting a possibly-related test file by naming
+convention only (e.g. `mypkg/core.py` → `mypkg/tests/test_core.py`). This is
+a **heuristic, not a verified fact** — it is never blended into the
+resolved/unresolved graph-edge output above it, and the heading always says
+so explicitly. If nothing matches on disk, it says so rather than guessing.
+
+```bash
+riftline impact compute --path fixtures/testmapped_pkg
+```
+```
+(matched 'compute' -> testmapped_pkg.core.compute)
+No known dependents of testmapped_pkg.core.compute. Safe to change in isolation.
+
+Possible related tests (unverified, naming-convention only):
+  - C:\riftline\fixtures\testmapped_pkg\core.py -> C:\riftline\fixtures\testmapped_pkg\tests\test_core.py
+```
+
+When no naming-convention match exists on disk, it says so explicitly rather
+than omitting the section silently or inventing a filename:
+
+```bash
+riftline impact lonely_function --path fixtures/testmapped_pkg
+```
+```
+(matched 'lonely_function' -> testmapped_pkg.orphan.lonely_function)
+No known dependents of testmapped_pkg.orphan.lonely_function. Safe to change in isolation.
+
+Possible related tests (unverified, naming-convention only):
+  - no matching test file found
+```
+
 ## Architecture
 
 Four layers, each depending only on the output types of the layer below:
@@ -143,6 +276,15 @@ parser.py   →  resolver.py  →  graph.py  →  cli.py
 | `fixtures/mini_pkg/` | 4-file chain (`app→main→utils→core`), one unresolved call — regression baseline, never modified |
 | `fixtures/oop_pkg/` | OOP: `self.foo()` resolution, single-inheritance chains, dynamic-attribute unresolved cases |
 | `fixtures/diff_repo/` | Ephemeral — built and torn down by `tests/test_diff.py`; committed tree contains only `.gitkeep` |
+| `fixtures/testmapped_pkg/` | `core.py` has a matching `tests/test_core.py` (positive case); `orphan.py` has no matching test file (negative case) — backs FR-21's test-file suggestion heuristic |
+
+## Benchmark
+
+A real-world scan benchmark (NFR-7) against
+[scrapy/scrapy](https://github.com/scrapy/scrapy) — 446 files, timing, and a
+hand-checked sample of resolved/unresolved edges (including two findings
+surfaced but not fixed) — is recorded in
+[docs/benchmark-results.md](docs/benchmark-results.md).
 
 ## Running the tests
 
