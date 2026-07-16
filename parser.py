@@ -19,6 +19,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 
+_PARSE_FAILURES: list["ParseFailure"] = []
+
+
+@dataclass(frozen=True)
+class ParseFailure:
+    """Structured information about a file that could not be parsed."""
+
+    path: Path
+    line: int | None
+    message: str
+
+
 @dataclass(frozen=True)
 class ImportBinding:
     """One row of a file's cheat sheet: what a local name actually refers to."""
@@ -91,11 +103,29 @@ class ParsedFile:
     functions: list[FunctionInfo]       # every function/method + its raw calls
     classes: list[ClassInfo] = field(default_factory=list)
     reexports: list[ReExport] = field(default_factory=list)  # populated for __init__.py files only
+    parse_error: ParseFailure | None = None
 
 
-def parse_file(path: Path) -> ast.Module:
-    source = path.read_text(encoding="utf-8")
-    return ast.parse(source, filename=str(path))
+def clear_parse_failures() -> None:
+    _PARSE_FAILURES.clear()
+
+
+def get_parse_failures() -> list[ParseFailure]:
+    return list(_PARSE_FAILURES)
+
+
+def parse_file(path: Path) -> tuple[ast.Module | None, ParseFailure | None]:
+    try:
+        source = path.read_text(encoding="utf-8")
+        return ast.parse(source, filename=str(path)), None
+    except SyntaxError as exc:
+        failure = ParseFailure(
+            path=path,
+            line=exc.lineno,
+            message=exc.msg,
+        )
+        _PARSE_FAILURES.append(failure)
+        return None, failure
 
 
 def extract_imports(tree: ast.Module) -> dict[str, ImportBinding]:
@@ -298,7 +328,18 @@ def extract_classes(tree: ast.Module) -> list[ClassInfo]:
 
 
 def parse(path: Path) -> ParsedFile:
-    tree = parse_file(path)
+    tree, parse_error = parse_file(path)
+    if tree is None:
+        return ParsedFile(
+            path=path,
+            imports={},
+            symbols=set(),
+            functions=[],
+            classes=[],
+            reexports=[],
+            parse_error=parse_error,
+        )
+
     return ParsedFile(
         path=path,
         imports=extract_imports(tree),

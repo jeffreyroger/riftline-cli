@@ -12,6 +12,9 @@ import argparse
 from pathlib import Path
 
 from .graph import build_graph, blast_radius, hotspots, find_symbol, find_python_files
+from .parser import clear_parse_failures, get_parse_failures
+from .export import to_dot, to_json, to_mermaid
+from .testmapper import suggest_test_file
 
 
 def _validated_root(path_str: str) -> Path:
@@ -35,26 +38,61 @@ def _validated_root(path_str: str) -> Path:
     return root
 
 
+def _print_test_suggestions(file_paths: list) -> None:
+    """Additive, clearly-labeled section -- never blended into the graph-edge
+    output above it. suggest_test_file() is a naming-convention heuristic,
+    not a resolved fact (SRS 1.4), so this always prints under its own
+    explicit "unverified" heading rather than reusing the blast-radius
+    list format."""
+    print()
+    print("Possible related tests (unverified, naming-convention only):")
+    found_any = False
+    for path in sorted(set(file_paths)):
+        suggestion = suggest_test_file(path)
+        if suggestion:
+            print(f"  - {path} -> {suggestion}")
+            found_any = True
+    if not found_any:
+        print("  - no matching test file found")
+
+
+def _print_parse_failures(failures: list) -> None:
+    if not failures:
+        return
+    print(f"{len(failures)} file(s) failed to parse:")
+    for failure in failures:
+        location = f"{failure.path}"
+        if failure.line is not None:
+            location = f"{location}:{failure.line}"
+        print(f"  - {location}: {failure.message}")
+
+
 def cmd_scan(args: argparse.Namespace) -> None:
+    clear_parse_failures()
     root = _validated_root(args.path)
     graph = build_graph(root)
+    failures = get_parse_failures()
     resolved = sum(1 for _, _, d in graph.edges(data=True) if d.get("confidence") == "resolved")
     unresolved = sum(1 for _, _, d in graph.edges(data=True) if d.get("confidence") == "unresolved")
     print(f"Scanned: {root}")
     print(f"  functions found : {graph.number_of_nodes()}")
     print(f"  edges resolved  : {resolved}")
     print(f"  edges unresolved: {unresolved}  (flagged, not guessed)")
+    _print_parse_failures(failures)
 
 
 def cmd_hotspots(args: argparse.Namespace) -> None:
     """The general, no-symbol-needed scan: rank every function by blast-radius
     size so you can see your riskiest chokepoints without knowing any names."""
+    clear_parse_failures()
     root = _validated_root(args.path)
     graph = build_graph(root)
     ranked = hotspots(graph, limit=args.limit)
 
+    failures = get_parse_failures()
     if not ranked:
         print("No functions found.")
+        _print_parse_failures(failures)
         return
 
     print(f"Top {len(ranked)} riskiest functions in {root} (by blast-radius size):")
@@ -63,6 +101,7 @@ def cmd_hotspots(args: argparse.Namespace) -> None:
         if count == 0:
             continue
         print(f"  {name.ljust(width)}   {count} dependent(s)")
+    _print_parse_failures(failures)
 
 
 def _resolve_symbol_or_exit(graph, query: str) -> str:
@@ -80,8 +119,10 @@ def _resolve_symbol_or_exit(graph, query: str) -> str:
 
 
 def cmd_impact(args: argparse.Namespace) -> None:
+    clear_parse_failures()
     root = _validated_root(args.path)
     graph = build_graph(root)
+    failures = get_parse_failures()
 
     symbol = _resolve_symbol_or_exit(graph, args.symbol)
     if symbol != args.symbol:
@@ -90,17 +131,41 @@ def cmd_impact(args: argparse.Namespace) -> None:
     affected = blast_radius(graph, symbol)
     if not affected:
         print(f"No known dependents of {symbol}. Safe to change in isolation.")
+        _print_test_suggestions([graph.nodes[symbol]["file"]])
+        _print_parse_failures(failures)
         return
 
     print(f"Blast radius of {symbol}:")
     for name in sorted(affected):
         print(f"  - {name}")
+    _print_test_suggestions([graph.nodes[symbol]["file"]])
+    _print_parse_failures(failures)
+
+
+def cmd_export(args: argparse.Namespace) -> None:
+    clear_parse_failures()
+    root = _validated_root(args.path)
+    graph = build_graph(root)
+
+    if args.format == "mermaid":
+        content = to_mermaid(graph)
+    elif args.format == "dot":
+        content = to_dot(graph)
+    else:
+        content = to_json(graph)
+
+    if args.out:
+        out_path = Path(args.out)
+        out_path.write_text(content, encoding="utf-8")
+    else:
+        print(content, end="")
 
 
 def cmd_diff(args: argparse.Namespace) -> None:
     """Map a git diff to the set of functions/methods whose bodies changed,
     and show the combined blast radius of those functions."""
     # 1. Path validation first
+    clear_parse_failures()
     root = _validated_root(args.path)
 
     # 2. Git repository validation
@@ -113,11 +178,13 @@ def cmd_diff(args: argparse.Namespace) -> None:
     # 3. Find changed functions
     changed = find_changed_functions(root, ref_old, ref_new)
 
+    failures = get_parse_failures()
     if not changed:
         print(
             f"No Python function changes detected between "
             f"'{ref_old}' and '{ref_new}'."
         )
+        _print_parse_failures(failures)
         return
 
     # Print changed functions line (like matching symbol in impact)
@@ -148,13 +215,19 @@ def cmd_diff(args: argparse.Namespace) -> None:
     changed_fqns = {fn.fqn for fn in changed}
     display = sorted(all_affected - changed_fqns)
 
+    changed_files = [str(root / fn.file) for fn in changed]
+
     if not display:
         print(f"No known dependents of changed functions between {ref_old} and {ref_new}. Safe to change in isolation.")
+        _print_test_suggestions(changed_files)
+        _print_parse_failures(failures)
         return
 
     print(f"Blast radius of changed functions between {ref_old} and {ref_new}:")
     for name in display:
         print(f"  - {name}")
+    _print_test_suggestions(changed_files)
+    _print_parse_failures(failures)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -183,6 +256,20 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_impact.add_argument("--path", default=".", help="Root of the package to scan.")
     p_impact.set_defaults(func=cmd_impact)
+
+    p_export = sub.add_parser(
+        "export",
+        help="Serialize the current graph to Mermaid, DOT, or JSON for visualization.",
+    )
+    p_export.add_argument(
+        "--format",
+        choices=["mermaid", "dot", "json"],
+        required=True,
+        help="Output format for the graph export.",
+    )
+    p_export.add_argument("--path", default=".", help="Root of the package to scan.")
+    p_export.add_argument("--out", default=None, help="Optional file path to write the export to.")
+    p_export.set_defaults(func=cmd_export)
 
     p_diff = sub.add_parser(
         "diff",
