@@ -1,0 +1,94 @@
+name: PR blast-radius comment
+
+# Reports the merged blast radius of a PR's changed functions as a PR
+# comment. This workflow REPORTS ONLY -- it never gates the build. There
+# is no `exit 1` path here that blocks merging on a large blast radius;
+# a big blast radius is exactly the kind of PR a human should look at
+# closely, not one CI should block automatically.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  blast-radius-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head with full history
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # fetch-depth: 0 (full history) rather than a fixed shallow number.
+          # `riftline diff` shells out to `git diff <base> <head>`, which
+          # needs both commits to actually be present locally -- a shallow
+          # clone that doesn't happen to include the PR's base commit makes
+          # the diff silently wrong or makes git error out. Fetch-depth
+          # matters here more than clone speed.
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install riftline
+        run: pip install .
+
+      - name: Run riftline diff (base -> head)
+        id: riftline_diff
+        run: |
+          set +e
+          riftline diff \
+            "${{ github.event.pull_request.base.sha }}" \
+            "${{ github.event.pull_request.head.sha }}" \
+            --path . > riftline_diff_output.txt 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          set -e
+          cat riftline_diff_output.txt
+
+      - name: Post blast-radius comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('riftline_diff_output.txt', 'utf8').trimEnd();
+            const exitCode = "${{ steps.riftline_diff.outputs.exit_code }}";
+
+            // No tracked Python function changes at all: don't spam the PR.
+            // (Zero-*dependents* results, e.g. "Safe to change in isolation",
+            // are still posted -- that's a useful answer, not noise.)
+            if (output.includes("No Python function changes detected")) {
+              console.log("No tracked function changes in this diff -- skipping comment.");
+              return;
+            }
+
+            let body =
+              "### Riftline blast-radius report\n\n" +
+              "Riftline analyzes what depends on the function(s) this PR " +
+              "changed. This is a report, not a gate -- it never fails the " +
+              "build, no matter how large the blast radius.\n\n" +
+              "Resolved edges are things Riftline verified statically. The " +
+              "\"unverified, naming-convention only\" section below (if " +
+              "present) is a heuristic guess at a related test file, never " +
+              "a confirmed fact -- see the project's guiding principle: " +
+              "never present a guess as a fact.\n\n" +
+              "```\n" + output + "\n```\n";
+
+            if (exitCode !== "0") {
+              body +=
+                "\n> Note: `riftline diff` exited with code " + exitCode +
+                ". This is usually a bad ref or a non-git checkout, not a " +
+                "large blast radius (that always exits 0) -- worth a look, " +
+                "but this workflow does not fail the build over it.\n";
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

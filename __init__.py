@@ -1,3 +1,9 @@
 """Riftline: know what breaks before you break it."""
 
-__version__ = "0.1.0"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("riftline-cli")
+except PackageNotFoundError:
+    # Not installed (e.g. running from a raw checkout with no `pip install`).
+    __version__ = "0+unknown"

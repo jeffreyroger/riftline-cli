@@ -1,3 +1,10 @@
 __pycache__/
+*.pyc
 *.egg-info/
 fixtures/diff_repo/.git/
+.venv/
+build/
+dist/
+benchmarks/
+.pytest_cache/
+.hypothesis/

@@ -1,0 +1,508 @@
+flowchart TD
+    riftline_cli__main["riftline.cli._main"]
+    riftline_cli__print_parse_failures["riftline.cli._print_parse_failures"]
+    riftline_cli__print_test_suggestions["riftline.cli._print_test_suggestions"]
+    riftline_cli__resolve_symbol_or_exit["riftline.cli._resolve_symbol_or_exit"]
+    riftline_cli__validated_root["riftline.cli._validated_root"]
+    riftline_cli__version_callback["riftline.cli._version_callback"]
+    riftline_cli_cmd_diff["riftline.cli.cmd_diff"]
+    riftline_cli_cmd_export["riftline.cli.cmd_export"]
+    riftline_cli_cmd_hotspots["riftline.cli.cmd_hotspots"]
+    riftline_cli_cmd_impact["riftline.cli.cmd_impact"]
+    riftline_cli_cmd_scan["riftline.cli.cmd_scan"]
+    riftline_cli_main["riftline.cli.main"]
+    riftline_export__escape_label["riftline.export._escape_label"]
+    riftline_export__sanitize_identifier["riftline.export._sanitize_identifier"]
+    riftline_export_to_dot["riftline.export.to_dot"]
+    riftline_export_to_json["riftline.export.to_json"]
+    riftline_export_to_mermaid["riftline.export.to_mermaid"]
+    riftline_git_diff_ChangedFunction["riftline.git_diff.ChangedFunction"]
+    riftline_git_diff__Hunk["riftline.git_diff._Hunk"]
+    riftline_git_diff__assert_git_repo["riftline.git_diff._assert_git_repo"]
+    riftline_git_diff__assert_ref_exists["riftline.git_diff._assert_ref_exists"]
+    riftline_git_diff__module_name["riftline.git_diff._module_name"]
+    riftline_git_diff__overlaps["riftline.git_diff._overlaps"]
+    riftline_git_diff__parse_diff_hunks["riftline.git_diff._parse_diff_hunks"]
+    riftline_git_diff__run_git["riftline.git_diff._run_git"]
+    riftline_git_diff_find_changed_functions["riftline.git_diff.find_changed_functions"]
+    riftline_graph_blast_radius["riftline.graph.blast_radius"]
+    riftline_graph_build_graph["riftline.graph.build_graph"]
+    riftline_graph_find_python_files["riftline.graph.find_python_files"]
+    riftline_graph_find_symbol["riftline.graph.find_symbol"]
+    riftline_graph_function_at_line["riftline.graph.function_at_line"]
+    riftline_graph_hotspots["riftline.graph.hotspots"]
+    riftline_graph_merged_blast_radius["riftline.graph.merged_blast_radius"]
+    riftline_graph_real_nodes["riftline.graph.real_nodes"]
+    riftline_parser_AttributeCall["riftline.parser.AttributeCall"]
+    riftline_parser_ClassInfo["riftline.parser.ClassInfo"]
+    riftline_parser_FunctionInfo["riftline.parser.FunctionInfo"]
+    riftline_parser_ImportBinding["riftline.parser.ImportBinding"]
+    riftline_parser_ImportBinding_is_relative["riftline.parser.ImportBinding.is_relative"]
+    riftline_parser_ParseFailure["riftline.parser.ParseFailure"]
+    riftline_parser_ParsedFile["riftline.parser.ParsedFile"]
+    riftline_parser_ReExport["riftline.parser.ReExport"]
+    riftline_parser__callee_attribute["riftline.parser._callee_attribute"]
+    riftline_parser__callee_name["riftline.parser._callee_name"]
+    riftline_parser_clear_parse_failures["riftline.parser.clear_parse_failures"]
+    riftline_parser_extract_classes["riftline.parser.extract_classes"]
+    riftline_parser_extract_classes_walk_body["riftline.parser.extract_classes.walk_body"]
+    riftline_parser_extract_functions["riftline.parser.extract_functions"]
+    riftline_parser_extract_functions_visit["riftline.parser.extract_functions.visit"]
+    riftline_parser_extract_functions_walk_body["riftline.parser.extract_functions.walk_body"]
+    riftline_parser_extract_imports["riftline.parser.extract_imports"]
+    riftline_parser_extract_reexports["riftline.parser.extract_reexports"]
+    riftline_parser_extract_symbols["riftline.parser.extract_symbols"]
+    riftline_parser_get_parse_failures["riftline.parser.get_parse_failures"]
+    riftline_parser_parse["riftline.parser.parse"]
+    riftline_parser_parse_file["riftline.parser.parse_file"]
+    riftline_resolver_ClassMethods["riftline.resolver.ClassMethods"]
+    riftline_resolver_ResolvedCall["riftline.resolver.ResolvedCall"]
+    riftline_resolver__find_method_in_hierarchy["riftline.resolver._find_method_in_hierarchy"]
+    riftline_resolver__resolve_base_fqn["riftline.resolver._resolve_base_fqn"]
+    riftline_resolver__resolve_one["riftline.resolver._resolve_one"]
+    riftline_resolver__resolve_through_reexports["riftline.resolver._resolve_through_reexports"]
+    riftline_resolver_build_class_method_table["riftline.resolver.build_class_method_table"]
+    riftline_resolver_build_class_method_table_get_module["riftline.resolver.build_class_method_table.get_module"]
+    riftline_resolver_module_name_for_file["riftline.resolver.module_name_for_file"]
+    riftline_resolver_resolve_calls_for_file["riftline.resolver.resolve_calls_for_file"]
+    riftline_resolver_resolve_relative_module["riftline.resolver.resolve_relative_module"]
+    riftline_testmapper_suggest_test_file["riftline.testmapper.suggest_test_file"]
+    unknown______join["unknown:', '.join"]
+    unknown_____join["unknown:'.'.join"]
+    unknown___n__join["unknown:'\n'.join"]
+    unknown_KeyError["unknown:KeyError"]
+    unknown_Path["unknown:Path"]
+    unknown_Path_path_str__resolve["unknown:Path(path_str).resolve"]
+    unknown_Path_rel_path__with_suffix["unknown:Path(rel_path).with_suffix"]
+    unknown_Path_rel_path__with_suffix_____as_posix["unknown:Path(rel_path).with_suffix('').as_posix"]
+    unknown_Path_rel_path__with_suffix_____as_posix___replace["unknown:Path(rel_path).with_suffix('').as_posix().replace"]
+    unknown_SystemExit["unknown:SystemExit"]
+    unknown_Table["unknown:Table"]
+    unknown_Text["unknown:Text"]
+    unknown__FILE_RE_match["unknown:_FILE_RE.match"]
+    unknown__HUNK_RE_match["unknown:_HUNK_RE.match"]
+    unknown__PARSE_FAILURES_append["unknown:_PARSE_FAILURES.append"]
+    unknown__PARSE_FAILURES_clear["unknown:_PARSE_FAILURES.clear"]
+    unknown_abs_path_relative_to["unknown:abs_path.relative_to"]
+    unknown_abs_path_relative_to_root__with_suffix["unknown:abs_path.relative_to(root).with_suffix"]
+    unknown_alias_name_split["unknown:alias.name.split"]
+    unknown_all_parsed_get["unknown:all_parsed.get"]
+    unknown_all_symbols_get["unknown:all_symbols.get"]
+    unknown_app["unknown:app"]
+    unknown_app_callback["unknown:app.callback"]
+    unknown_app_command["unknown:app.command"]
+    unknown_ast_iter_child_nodes["unknown:ast.iter_child_nodes"]
+    unknown_ast_parse["unknown:ast.parse"]
+    unknown_ast_unparse["unknown:ast.unparse"]
+    unknown_ast_walk["unknown:ast.walk"]
+    unknown_attribute_calls_append["unknown:attribute_calls.append"]
+    unknown_b_rsplit["unknown:b.rsplit"]
+    unknown_base_name_split["unknown:base_name.split"]
+    unknown_calls_append["unknown:calls.append"]
+    unknown_candidate_is_file["unknown:candidate.is_file"]
+    unknown_changed_append["unknown:changed.append"]
+    unknown_classes_append["unknown:classes.append"]
+    unknown_console_print["unknown:console.print"]
+    unknown_content_lstrip["unknown:content.lstrip"]
+    unknown_context_map_get["unknown:context_map.get"]
+    unknown_current______init___py__exists["unknown:current / '__init__.py'.exists"]
+    unknown_current____pyproject_toml__exists["unknown:current / 'pyproject.toml'.exists"]
+    unknown_current____setup_py__exists["unknown:current / 'setup.py'.exists"]
+    unknown_current_module_split["unknown:current_module.split"]
+    unknown_d_get["unknown:d.get"]
+    unknown_data_get["unknown:data.get"]
+    unknown_diff_text_splitlines["unknown:diff_text.splitlines"]
+    unknown_fn_name_rsplit["unknown:fn.name.rsplit"]
+    unknown_functions_append["unknown:functions.append"]
+    unknown_get_module["unknown:get_module"]
+    unknown_getattr["unknown:getattr"]
+    unknown_graph_add_edge["unknown:graph.add_edge"]
+    unknown_graph_add_node["unknown:graph.add_node"]
+    unknown_graph_edges["unknown:graph.edges"]
+    unknown_graph_nodes["unknown:graph.nodes"]
+    unknown_graph_number_of_nodes["unknown:graph.number_of_nodes"]
+    unknown_hunks_append["unknown:hunks.append"]
+    unknown_hunks_by_file_items["unknown:hunks_by_file.items"]
+    unknown_hunks_by_file_setdefault["unknown:hunks_by_file.setdefault"]
+    unknown_hunks_by_file_setdefault_h_rel_path______append["unknown:hunks_by_file.setdefault(h.rel_path, []).append"]
+    unknown_int["unknown:int"]
+    unknown_isinstance["unknown:isinstance"]
+    unknown_json_dumps["unknown:json.dumps"]
+    unknown_label_replace["unknown:label.replace"]
+    unknown_len["unknown:len"]
+    unknown_lines_append["unknown:lines.append"]
+    unknown_list["unknown:list"]
+    unknown_m_group["unknown:m.group"]
+    unknown_matching_bases_append["unknown:matching_bases.append"]
+    unknown_module_split["unknown:module.split"]
+    unknown_n_endswith["unknown:n.endswith"]
+    unknown_n_startswith["unknown:n.startswith"]
+    unknown_nx_DiGraph["unknown:nx.DiGraph"]
+    unknown_nx_ancestors["unknown:nx.ancestors"]
+    unknown_os_unlink["unknown:os.unlink"]
+    unknown_out_path_write_text["unknown:out_path.write_text"]
+    unknown_parsed_imports_get["unknown:parsed.imports.get"]
+    unknown_parsed_by_module_items["unknown:parsed_by_module.items"]
+    unknown_parsed_by_module_values["unknown:parsed_by_module.values"]
+    unknown_path_read_text["unknown:path.read_text"]
+    unknown_path_relative_to["unknown:path.relative_to"]
+    unknown_path_relative_to_root__with_suffix["unknown:path.relative_to(root).with_suffix"]
+    unknown_pattern_format["unknown:pattern.format"]
+    unknown_print["unknown:print"]
+    unknown_ranked_sort["unknown:ranked.sort"]
+    unknown_re_sub["unknown:re.sub"]
+    unknown_reexports_append["unknown:reexports.append"]
+    unknown_rel_endswith["unknown:rel.endswith"]
+    unknown_results_append["unknown:results.append"]
+    unknown_root______init___py__exists["unknown:root / '__init__.py'.exists"]
+    unknown_root_exists["unknown:root.exists"]
+    unknown_root_is_dir["unknown:root.is_dir"]
+    unknown_root_resolve["unknown:root.resolve"]
+    unknown_root_rglob["unknown:root.rglob"]
+    unknown_seen_fqns_add["unknown:seen_fqns.add"]
+    unknown_set["unknown:set"]
+    unknown_sorted["unknown:sorted"]
+    unknown_stderr_lower["unknown:stderr.lower"]
+    unknown_stderr_strip["unknown:stderr.strip"]
+    unknown_stdout_strip["unknown:stdout.strip"]
+    unknown_str["unknown:str"]
+    unknown_subprocess_run["unknown:subprocess.run"]
+    unknown_sum["unknown:sum"]
+    unknown_symbols_add["unknown:symbols.add"]
+    unknown_table_add_column["unknown:table.add_column"]
+    unknown_table_add_row["unknown:table.add_row"]
+    unknown_table_get["unknown:table.get"]
+    unknown_table_fq_class__bases_append["unknown:table[fq_class].bases.append"]
+    unknown_table_fq_class__methods_add["unknown:table[fq_class].methods.add"]
+    unknown_tempfile_NamedTemporaryFile["unknown:tempfile.NamedTemporaryFile"]
+    unknown_tmp_write["unknown:tmp.write"]
+    unknown_typer_Argument["unknown:typer.Argument"]
+    unknown_typer_Exit["unknown:typer.Exit"]
+    unknown_typer_Option["unknown:typer.Option"]
+    unknown_visit["unknown:visit"]
+    unknown_visited_add["unknown:visited.add"]
+    unknown_walk_body["unknown:walk_body"]
+    riftline_cli__main -.-> unknown_app_callback
+    riftline_cli__main -.-> unknown_typer_Option
+    riftline_cli__print_parse_failures -.-> unknown_Text
+    riftline_cli__print_parse_failures -.-> unknown_console_print
+    riftline_cli__print_parse_failures -.-> unknown_len
+    riftline_cli__print_test_suggestions --> riftline_testmapper_suggest_test_file
+    riftline_cli__print_test_suggestions -.-> unknown_Text
+    riftline_cli__print_test_suggestions -.-> unknown_console_print
+    riftline_cli__print_test_suggestions -.-> unknown_set
+    riftline_cli__print_test_suggestions -.-> unknown_sorted
+    riftline_cli__resolve_symbol_or_exit --> riftline_graph_find_symbol
+    riftline_cli__resolve_symbol_or_exit -.-> unknown_SystemExit
+    riftline_cli__resolve_symbol_or_exit -.-> unknown_Text
+    riftline_cli__resolve_symbol_or_exit -.-> unknown_console_print
+    riftline_cli__resolve_symbol_or_exit -.-> unknown_len
+    riftline_cli__resolve_symbol_or_exit -.-> unknown_sorted
+    riftline_cli__validated_root --> riftline_graph_find_python_files
+    riftline_cli__validated_root -.-> unknown_Path
+    riftline_cli__validated_root -.-> unknown_Path_path_str__resolve
+    riftline_cli__validated_root -.-> unknown_SystemExit
+    riftline_cli__validated_root -.-> unknown_console_print
+    riftline_cli__validated_root -.-> unknown_root_exists
+    riftline_cli__validated_root -.-> unknown_root_is_dir
+    riftline_cli__version_callback -.-> unknown_console_print
+    riftline_cli__version_callback -.-> unknown_typer_Exit
+    riftline_cli_cmd_diff --> riftline_cli__print_parse_failures
+    riftline_cli_cmd_diff --> riftline_cli__print_test_suggestions
+    riftline_cli_cmd_diff --> riftline_cli__validated_root
+    riftline_cli_cmd_diff --> riftline_git_diff__assert_git_repo
+    riftline_cli_cmd_diff --> riftline_git_diff_find_changed_functions
+    riftline_cli_cmd_diff --> riftline_graph_build_graph
+    riftline_cli_cmd_diff --> riftline_graph_merged_blast_radius
+    riftline_cli_cmd_diff --> riftline_parser_clear_parse_failures
+    riftline_cli_cmd_diff --> riftline_parser_get_parse_failures
+    riftline_cli_cmd_diff -.-> unknown______join
+    riftline_cli_cmd_diff -.-> unknown_Text
+    riftline_cli_cmd_diff -.-> unknown_app_command
+    riftline_cli_cmd_diff -.-> unknown_console_print
+    riftline_cli_cmd_diff -.-> unknown_sorted
+    riftline_cli_cmd_diff -.-> unknown_str
+    riftline_cli_cmd_diff -.-> unknown_typer_Argument
+    riftline_cli_cmd_diff -.-> unknown_typer_Option
+    riftline_cli_cmd_export --> riftline_cli__validated_root
+    riftline_cli_cmd_export --> riftline_export_to_dot
+    riftline_cli_cmd_export --> riftline_export_to_json
+    riftline_cli_cmd_export --> riftline_export_to_mermaid
+    riftline_cli_cmd_export --> riftline_graph_build_graph
+    riftline_cli_cmd_export --> riftline_parser_clear_parse_failures
+    riftline_cli_cmd_export -.-> unknown_Path
+    riftline_cli_cmd_export -.-> unknown_app_command
+    riftline_cli_cmd_export -.-> unknown_out_path_write_text
+    riftline_cli_cmd_export -.-> unknown_print
+    riftline_cli_cmd_export -.-> unknown_typer_Option
+    riftline_cli_cmd_hotspots --> riftline_cli__print_parse_failures
+    riftline_cli_cmd_hotspots --> riftline_cli__validated_root
+    riftline_cli_cmd_hotspots --> riftline_graph_build_graph
+    riftline_cli_cmd_hotspots --> riftline_graph_hotspots
+    riftline_cli_cmd_hotspots --> riftline_parser_clear_parse_failures
+    riftline_cli_cmd_hotspots --> riftline_parser_get_parse_failures
+    riftline_cli_cmd_hotspots -.-> unknown_Table
+    riftline_cli_cmd_hotspots -.-> unknown_Text
+    riftline_cli_cmd_hotspots -.-> unknown_app_command
+    riftline_cli_cmd_hotspots -.-> unknown_console_print
+    riftline_cli_cmd_hotspots -.-> unknown_len
+    riftline_cli_cmd_hotspots -.-> unknown_str
+    riftline_cli_cmd_hotspots -.-> unknown_table_add_column
+    riftline_cli_cmd_hotspots -.-> unknown_table_add_row
+    riftline_cli_cmd_hotspots -.-> unknown_typer_Argument
+    riftline_cli_cmd_hotspots -.-> unknown_typer_Option
+    riftline_cli_cmd_impact --> riftline_cli__print_parse_failures
+    riftline_cli_cmd_impact --> riftline_cli__print_test_suggestions
+    riftline_cli_cmd_impact --> riftline_cli__resolve_symbol_or_exit
+    riftline_cli_cmd_impact --> riftline_cli__validated_root
+    riftline_cli_cmd_impact --> riftline_graph_blast_radius
+    riftline_cli_cmd_impact --> riftline_graph_build_graph
+    riftline_cli_cmd_impact --> riftline_parser_clear_parse_failures
+    riftline_cli_cmd_impact --> riftline_parser_get_parse_failures
+    riftline_cli_cmd_impact -.-> unknown_Table
+    riftline_cli_cmd_impact -.-> unknown_Text
+    riftline_cli_cmd_impact -.-> unknown_app_command
+    riftline_cli_cmd_impact -.-> unknown_console_print
+    riftline_cli_cmd_impact -.-> unknown_sorted
+    riftline_cli_cmd_impact -.-> unknown_table_add_column
+    riftline_cli_cmd_impact -.-> unknown_table_add_row
+    riftline_cli_cmd_impact -.-> unknown_typer_Argument
+    riftline_cli_cmd_impact -.-> unknown_typer_Option
+    riftline_cli_cmd_scan --> riftline_cli__print_parse_failures
+    riftline_cli_cmd_scan --> riftline_cli__validated_root
+    riftline_cli_cmd_scan --> riftline_graph_build_graph
+    riftline_cli_cmd_scan --> riftline_parser_clear_parse_failures
+    riftline_cli_cmd_scan --> riftline_parser_get_parse_failures
+    riftline_cli_cmd_scan -.-> unknown_app_command
+    riftline_cli_cmd_scan -.-> unknown_console_print
+    riftline_cli_cmd_scan -.-> unknown_d_get
+    riftline_cli_cmd_scan -.-> unknown_graph_edges
+    riftline_cli_cmd_scan -.-> unknown_graph_number_of_nodes
+    riftline_cli_cmd_scan -.-> unknown_sum
+    riftline_cli_cmd_scan -.-> unknown_typer_Argument
+    riftline_cli_main -.-> unknown_app
+    riftline_export__escape_label -.-> unknown_label_replace
+    riftline_export__sanitize_identifier -.-> unknown_re_sub
+    riftline_export_to_dot --> riftline_export__escape_label
+    riftline_export_to_dot --> riftline_export__sanitize_identifier
+    riftline_export_to_dot -.-> unknown___n__join
+    riftline_export_to_dot -.-> unknown_data_get
+    riftline_export_to_dot -.-> unknown_graph_edges
+    riftline_export_to_dot -.-> unknown_lines_append
+    riftline_export_to_dot -.-> unknown_sorted
+    riftline_export_to_dot -.-> unknown_str
+    riftline_export_to_json -.-> unknown_data_get
+    riftline_export_to_json -.-> unknown_graph_edges
+    riftline_export_to_json -.-> unknown_json_dumps
+    riftline_export_to_json -.-> unknown_sorted
+    riftline_export_to_json -.-> unknown_str
+    riftline_export_to_mermaid --> riftline_export__escape_label
+    riftline_export_to_mermaid --> riftline_export__sanitize_identifier
+    riftline_export_to_mermaid -.-> unknown___n__join
+    riftline_export_to_mermaid -.-> unknown_data_get
+    riftline_export_to_mermaid -.-> unknown_graph_edges
+    riftline_export_to_mermaid -.-> unknown_lines_append
+    riftline_export_to_mermaid -.-> unknown_sorted
+    riftline_export_to_mermaid -.-> unknown_str
+    riftline_git_diff__assert_git_repo --> riftline_git_diff__run_git
+    riftline_git_diff__assert_git_repo -.-> unknown_SystemExit
+    riftline_git_diff__assert_git_repo -.-> unknown_print
+    riftline_git_diff__assert_git_repo -.-> unknown_stderr_lower
+    riftline_git_diff__assert_git_repo -.-> unknown_stderr_strip
+    riftline_git_diff__assert_ref_exists --> riftline_git_diff__run_git
+    riftline_git_diff__assert_ref_exists -.-> unknown_SystemExit
+    riftline_git_diff__assert_ref_exists -.-> unknown_print
+    riftline_git_diff__module_name -.-> unknown_____join
+    riftline_git_diff__module_name -.-> unknown_abs_path_relative_to
+    riftline_git_diff__module_name -.-> unknown_abs_path_relative_to_root__with_suffix
+    riftline_git_diff__module_name -.-> unknown_list
+    riftline_git_diff__parse_diff_hunks --> riftline_git_diff__Hunk
+    riftline_git_diff__parse_diff_hunks -.-> unknown__FILE_RE_match
+    riftline_git_diff__parse_diff_hunks -.-> unknown__HUNK_RE_match
+    riftline_git_diff__parse_diff_hunks -.-> unknown_diff_text_splitlines
+    riftline_git_diff__parse_diff_hunks -.-> unknown_hunks_append
+    riftline_git_diff__parse_diff_hunks -.-> unknown_int
+    riftline_git_diff__parse_diff_hunks -.-> unknown_m_group
+    riftline_git_diff__parse_diff_hunks -.-> unknown_rel_endswith
+    riftline_git_diff__run_git -.-> unknown_str
+    riftline_git_diff__run_git -.-> unknown_subprocess_run
+    riftline_git_diff_find_changed_functions --> riftline_git_diff_ChangedFunction
+    riftline_git_diff_find_changed_functions --> riftline_git_diff__assert_git_repo
+    riftline_git_diff_find_changed_functions --> riftline_git_diff__assert_ref_exists
+    riftline_git_diff_find_changed_functions --> riftline_git_diff__module_name
+    riftline_git_diff_find_changed_functions --> riftline_git_diff__overlaps
+    riftline_git_diff_find_changed_functions --> riftline_git_diff__parse_diff_hunks
+    riftline_git_diff_find_changed_functions --> riftline_git_diff__run_git
+    riftline_git_diff_find_changed_functions --> riftline_parser_parse
+    riftline_git_diff_find_changed_functions -.-> unknown_Path
+    riftline_git_diff_find_changed_functions -.-> unknown_Path_rel_path__with_suffix
+    riftline_git_diff_find_changed_functions -.-> unknown_Path_rel_path__with_suffix_____as_posix
+    riftline_git_diff_find_changed_functions -.-> unknown_Path_rel_path__with_suffix_____as_posix___replace
+    riftline_git_diff_find_changed_functions -.-> unknown_SystemExit
+    riftline_git_diff_find_changed_functions -.-> unknown_changed_append
+    riftline_git_diff_find_changed_functions -.-> unknown_content_lstrip
+    riftline_git_diff_find_changed_functions -.-> unknown_hunks_by_file_items
+    riftline_git_diff_find_changed_functions -.-> unknown_hunks_by_file_setdefault
+    riftline_git_diff_find_changed_functions -.-> unknown_hunks_by_file_setdefault_h_rel_path______append
+    riftline_git_diff_find_changed_functions -.-> unknown_os_unlink
+    riftline_git_diff_find_changed_functions -.-> unknown_print
+    riftline_git_diff_find_changed_functions -.-> unknown_root_resolve
+    riftline_git_diff_find_changed_functions -.-> unknown_seen_fqns_add
+    riftline_git_diff_find_changed_functions -.-> unknown_set
+    riftline_git_diff_find_changed_functions -.-> unknown_sorted
+    riftline_git_diff_find_changed_functions -.-> unknown_stderr_strip
+    riftline_git_diff_find_changed_functions -.-> unknown_stdout_strip
+    riftline_git_diff_find_changed_functions -.-> unknown_tempfile_NamedTemporaryFile
+    riftline_git_diff_find_changed_functions -.-> unknown_tmp_write
+    riftline_graph_blast_radius -.-> unknown_KeyError
+    riftline_graph_blast_radius -.-> unknown_nx_ancestors
+    riftline_graph_build_graph --> riftline_graph_find_python_files
+    riftline_graph_build_graph --> riftline_parser_parse
+    riftline_graph_build_graph --> riftline_resolver_build_class_method_table
+    riftline_graph_build_graph --> riftline_resolver_module_name_for_file
+    riftline_graph_build_graph --> riftline_resolver_resolve_calls_for_file
+    riftline_graph_build_graph -.-> unknown_graph_add_edge
+    riftline_graph_build_graph -.-> unknown_graph_add_node
+    riftline_graph_build_graph -.-> unknown_nx_DiGraph
+    riftline_graph_build_graph -.-> unknown_parsed_by_module_items
+    riftline_graph_build_graph -.-> unknown_parsed_by_module_values
+    riftline_graph_build_graph -.-> unknown_str
+    riftline_graph_find_python_files -.-> unknown_root_rglob
+    riftline_graph_find_python_files -.-> unknown_sorted
+    riftline_graph_find_symbol --> riftline_graph_real_nodes
+    riftline_graph_find_symbol -.-> unknown_n_endswith
+    riftline_graph_function_at_line -.-> unknown_data_get
+    riftline_graph_function_at_line -.-> unknown_graph_nodes
+    riftline_graph_hotspots --> riftline_graph_real_nodes
+    riftline_graph_hotspots -.-> unknown_len
+    riftline_graph_hotspots -.-> unknown_nx_ancestors
+    riftline_graph_hotspots -.-> unknown_ranked_sort
+    riftline_graph_merged_blast_radius --> riftline_graph_blast_radius
+    riftline_graph_merged_blast_radius -.-> unknown_set
+    riftline_graph_real_nodes -.-> unknown_n_startswith
+    riftline_parser__callee_attribute -.-> unknown_ast_unparse
+    riftline_parser__callee_attribute -.-> unknown_isinstance
+    riftline_parser__callee_name -.-> unknown_isinstance
+    riftline_parser_clear_parse_failures -.-> unknown__PARSE_FAILURES_clear
+    riftline_parser_extract_classes --> riftline_parser_ClassInfo
+    riftline_parser_extract_classes -.-> unknown_ast_iter_child_nodes
+    riftline_parser_extract_classes -.-> unknown_ast_unparse
+    riftline_parser_extract_classes -.-> unknown_classes_append
+    riftline_parser_extract_classes -.-> unknown_isinstance
+    riftline_parser_extract_classes -.-> unknown_walk_body
+    riftline_parser_extract_classes_walk_body --> riftline_parser_ClassInfo
+    riftline_parser_extract_classes_walk_body -.-> unknown_ast_iter_child_nodes
+    riftline_parser_extract_classes_walk_body -.-> unknown_ast_unparse
+    riftline_parser_extract_classes_walk_body -.-> unknown_classes_append
+    riftline_parser_extract_classes_walk_body -.-> unknown_isinstance
+    riftline_parser_extract_classes_walk_body -.-> unknown_walk_body
+    riftline_parser_extract_functions --> riftline_parser_AttributeCall
+    riftline_parser_extract_functions --> riftline_parser_FunctionInfo
+    riftline_parser_extract_functions --> riftline_parser__callee_attribute
+    riftline_parser_extract_functions --> riftline_parser__callee_name
+    riftline_parser_extract_functions -.-> unknown_ast_iter_child_nodes
+    riftline_parser_extract_functions -.-> unknown_ast_walk
+    riftline_parser_extract_functions -.-> unknown_attribute_calls_append
+    riftline_parser_extract_functions -.-> unknown_calls_append
+    riftline_parser_extract_functions -.-> unknown_context_map_get
+    riftline_parser_extract_functions -.-> unknown_functions_append
+    riftline_parser_extract_functions -.-> unknown_getattr
+    riftline_parser_extract_functions -.-> unknown_isinstance
+    riftline_parser_extract_functions -.-> unknown_visit
+    riftline_parser_extract_functions -.-> unknown_walk_body
+    riftline_parser_extract_functions_visit -.-> unknown_ast_iter_child_nodes
+    riftline_parser_extract_functions_visit -.-> unknown_isinstance
+    riftline_parser_extract_functions_visit -.-> unknown_visit
+    riftline_parser_extract_functions_walk_body --> riftline_parser_AttributeCall
+    riftline_parser_extract_functions_walk_body --> riftline_parser_FunctionInfo
+    riftline_parser_extract_functions_walk_body --> riftline_parser__callee_attribute
+    riftline_parser_extract_functions_walk_body --> riftline_parser__callee_name
+    riftline_parser_extract_functions_walk_body -.-> unknown_ast_iter_child_nodes
+    riftline_parser_extract_functions_walk_body -.-> unknown_ast_walk
+    riftline_parser_extract_functions_walk_body -.-> unknown_attribute_calls_append
+    riftline_parser_extract_functions_walk_body -.-> unknown_calls_append
+    riftline_parser_extract_functions_walk_body -.-> unknown_context_map_get
+    riftline_parser_extract_functions_walk_body -.-> unknown_functions_append
+    riftline_parser_extract_functions_walk_body -.-> unknown_getattr
+    riftline_parser_extract_functions_walk_body -.-> unknown_isinstance
+    riftline_parser_extract_functions_walk_body -.-> unknown_walk_body
+    riftline_parser_extract_imports --> riftline_parser_ImportBinding
+    riftline_parser_extract_imports -.-> unknown_alias_name_split
+    riftline_parser_extract_imports -.-> unknown_ast_walk
+    riftline_parser_extract_imports -.-> unknown_isinstance
+    riftline_parser_extract_reexports --> riftline_parser_ReExport
+    riftline_parser_extract_reexports -.-> unknown_ast_walk
+    riftline_parser_extract_reexports -.-> unknown_isinstance
+    riftline_parser_extract_reexports -.-> unknown_reexports_append
+    riftline_parser_extract_symbols -.-> unknown_isinstance
+    riftline_parser_extract_symbols -.-> unknown_set
+    riftline_parser_extract_symbols -.-> unknown_symbols_add
+    riftline_parser_get_parse_failures -.-> unknown_list
+    riftline_parser_parse --> riftline_parser_ParsedFile
+    riftline_parser_parse --> riftline_parser_extract_classes
+    riftline_parser_parse --> riftline_parser_extract_functions
+    riftline_parser_parse --> riftline_parser_extract_imports
+    riftline_parser_parse --> riftline_parser_extract_reexports
+    riftline_parser_parse --> riftline_parser_extract_symbols
+    riftline_parser_parse --> riftline_parser_parse_file
+    riftline_parser_parse -.-> unknown_set
+    riftline_parser_parse_file --> riftline_parser_ParseFailure
+    riftline_parser_parse_file -.-> unknown__PARSE_FAILURES_append
+    riftline_parser_parse_file -.-> unknown_ast_parse
+    riftline_parser_parse_file -.-> unknown_path_read_text
+    riftline_parser_parse_file -.-> unknown_str
+    riftline_resolver__find_method_in_hierarchy --> riftline_resolver__find_method_in_hierarchy
+    riftline_resolver__find_method_in_hierarchy -.-> unknown______join
+    riftline_resolver__find_method_in_hierarchy -.-> unknown_b_rsplit
+    riftline_resolver__find_method_in_hierarchy -.-> unknown_len
+    riftline_resolver__find_method_in_hierarchy -.-> unknown_matching_bases_append
+    riftline_resolver__find_method_in_hierarchy -.-> unknown_set
+    riftline_resolver__find_method_in_hierarchy -.-> unknown_table_get
+    riftline_resolver__find_method_in_hierarchy -.-> unknown_visited_add
+    riftline_resolver__resolve_base_fqn --> riftline_resolver_resolve_relative_module
+    riftline_resolver__resolve_base_fqn -.-> unknown_base_name_split
+    riftline_resolver__resolve_base_fqn -.-> unknown_parsed_imports_get
+    riftline_resolver__resolve_one --> riftline_resolver__resolve_through_reexports
+    riftline_resolver__resolve_one --> riftline_resolver_resolve_relative_module
+    riftline_resolver__resolve_one -.-> unknown_all_symbols_get
+    riftline_resolver__resolve_one -.-> unknown_parsed_imports_get
+    riftline_resolver__resolve_through_reexports --> riftline_resolver__resolve_through_reexports
+    riftline_resolver__resolve_through_reexports --> riftline_resolver_resolve_relative_module
+    riftline_resolver__resolve_through_reexports -.-> unknown_all_parsed_get
+    riftline_resolver__resolve_through_reexports -.-> unknown_all_symbols_get
+    riftline_resolver__resolve_through_reexports -.-> unknown_set
+    riftline_resolver__resolve_through_reexports -.-> unknown_visited_add
+    riftline_resolver_build_class_method_table --> riftline_resolver_ClassMethods
+    riftline_resolver_build_class_method_table --> riftline_resolver__resolve_base_fqn
+    riftline_resolver_build_class_method_table --> riftline_resolver_module_name_for_file
+    riftline_resolver_build_class_method_table -.-> unknown_current______init___py__exists
+    riftline_resolver_build_class_method_table -.-> unknown_current____pyproject_toml__exists
+    riftline_resolver_build_class_method_table -.-> unknown_current____setup_py__exists
+    riftline_resolver_build_class_method_table -.-> unknown_fn_name_rsplit
+    riftline_resolver_build_class_method_table -.-> unknown_get_module
+    riftline_resolver_build_class_method_table -.-> unknown_isinstance
+    riftline_resolver_build_class_method_table -.-> unknown_set
+    riftline_resolver_build_class_method_table -.-> unknown_table_fq_class__bases_append
+    riftline_resolver_build_class_method_table -.-> unknown_table_fq_class__methods_add
+    riftline_resolver_build_class_method_table_get_module --> riftline_resolver_module_name_for_file
+    riftline_resolver_build_class_method_table_get_module -.-> unknown_current______init___py__exists
+    riftline_resolver_build_class_method_table_get_module -.-> unknown_current____pyproject_toml__exists
+    riftline_resolver_build_class_method_table_get_module -.-> unknown_current____setup_py__exists
+    riftline_resolver_module_name_for_file -.-> unknown_____join
+    riftline_resolver_module_name_for_file -.-> unknown_list
+    riftline_resolver_module_name_for_file -.-> unknown_path_relative_to
+    riftline_resolver_module_name_for_file -.-> unknown_path_relative_to_root__with_suffix
+    riftline_resolver_module_name_for_file -.-> unknown_root______init___py__exists
+    riftline_resolver_resolve_calls_for_file --> riftline_resolver_ResolvedCall
+    riftline_resolver_resolve_calls_for_file --> riftline_resolver__find_method_in_hierarchy
+    riftline_resolver_resolve_calls_for_file --> riftline_resolver__resolve_one
+    riftline_resolver_resolve_calls_for_file --> riftline_resolver_build_class_method_table
+    riftline_resolver_resolve_calls_for_file -.-> unknown_results_append
+    riftline_resolver_resolve_relative_module -.-> unknown_____join
+    riftline_resolver_resolve_relative_module -.-> unknown_current_module_split
+    riftline_resolver_resolve_relative_module -.-> unknown_len
+    riftline_resolver_resolve_relative_module -.-> unknown_module_split
+    riftline_testmapper_suggest_test_file -.-> unknown_Path
+    riftline_testmapper_suggest_test_file -.-> unknown_candidate_is_file
+    riftline_testmapper_suggest_test_file -.-> unknown_pattern_format
+    riftline_testmapper_suggest_test_file -.-> unknown_str
