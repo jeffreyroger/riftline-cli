@@ -3,16 +3,29 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "riftline"
+name = "riftline-cli"
 version = "0.1.0"
 description = "Blast-radius analyzer: know what breaks before you break it."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "jeffreyroger" },
+]
 requires-python = ">=3.10"
 dependencies = [
     "networkx>=3.0",
+    "typer>=0.12",
+    "rich>=13.0",
 ]
 
 [project.scripts]
 riftline = "riftline.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "hypothesis>=6.100",
+]
 
 [tool.setuptools]
 packages = ["riftline"]

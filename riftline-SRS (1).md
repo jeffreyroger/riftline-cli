@@ -271,6 +271,19 @@ graph edge. It was implemented in Task D3 (`testmapper.py`), wired into
 `impact`/`diff` output under an explicit "unverified, naming-convention
 only" heading, and never added as a graph node or edge.
 
+### 4.5 Packaging & CI (Week 4)
+
+**FR-22** `[Implemented]` The system shall be installable via
+`pip install .` from a `pyproject.toml`, exposing a `riftline` console
+entry point, with declared dependencies and a `Python >= 3.10` constraint.
+
+**FR-23** `[Implemented]` CI shall run the full test suite on every
+push/PR, and shall additionally run Riftline against its own source
+(dogfooding) as a smoke check. See `.github/workflows/ci.yml` — matrix
+over Python 3.10/3.11/3.12, `pytest tests/ -v`, a `riftline scan .`
+dogfood step, and a `riftline export --format json` smoke test that
+validates the output parses as JSON.
+
 ---
 
 ## 5. Non-Functional Requirements
@@ -308,8 +321,18 @@ substitutions to be reversed by editing a single file each.
 **NFR-6 (Offline-buildable core).** Core graph construction
 (`parser.py` → `resolver.py` → `graph.py`) must have zero required
 third-party dependencies beyond `networkx`. CLI ergonomics (`typer`,
-`rich`) and multi-language parsing (`tree-sitter`) are enhancements, not
-requirements for the core logic to function.
+`rich`) are a permitted enhancement confined to `cli.py`. Multi-language
+parsing (`tree-sitter`) is explicitly **not** an enhancement to add in v1
+— see §6.2 ("Deliberate v1 design decisions") and §7.
+
+**Testable invariant:** after the Week 4 `typer`/`rich` swap lands (§6.2,
+FR-22/FR-23 timeframe), `parser.py`, `resolver.py`, and `graph.py` shall
+still import zero third-party packages other than `networkx`. This is
+checkable by inspecting each file's `import`/`from` statements: every
+non-stdlib name referenced must be `networkx`, or the file fails this
+requirement. `typer`/`rich` imports are permitted in `cli.py` only — their
+presence in `parser.py`, `resolver.py`, or `graph.py` is a regression
+against this requirement, not an acceptable side effect of the CLI swap.
 
 **NFR-7 (Performance target).** `[Implemented]` The system should complete
 a full scan of a several-hundred-file repository in under a few seconds on
@@ -330,21 +353,41 @@ fixed) during that benchmark.
 ### 6.2 Documented substitutions
 The initial build environment had no network access to install
 third-party packages. Three substitutions were made, each scoped to
-exactly one file, satisfying NFR-5/NFR-6:
+exactly one file, satisfying NFR-5/NFR-6. They are not all equally
+reversible — see the two groups below.
+
+**Deliberate v1 design decisions (do not reverse):**
 
 | Requirement originally called for | Currently implemented with | File scope |
 |---|---|---|
 | `tree-sitter` (multi-language AST parsing) | Python stdlib `ast` (Python-only) | `parser.py` |
-| `typer` + `rich` (CLI framework/output) | stdlib `argparse` + `print` | `cli.py` |
-| `pytest` | stdlib `unittest` | `tests/test_graph.py` |
 
-None of these substitutions affect `resolver.py` or `graph.py`, which
-contain the actual resolution logic. Reversing them is a mechanical,
-single-file change once package installation is available.
+*Why this one stays:* reversing it would add a compiled third-party parser
+to the core path, contradicting NFR-6 (offline-buildable core, zero
+third-party dependencies beyond `networkx`) and §2.3 (must run fully
+offline) — in service of multi-language support that §7 already places
+out of scope for v1. This is a permanent v1 decision, not a
+current-sandbox workaround: revisit only if multi-language parsing is
+explicitly scoped for v2.
+
+**Reversed (Week 4):**
+
+| Requirement originally called for | Status |
+|---|---|
+| `typer` + `rich` (CLI framework/output) | **Reversed.** `cli.py` now uses both; `parser.py`/`resolver.py`/`graph.py` still import nothing beyond `networkx` (NFR-6 verified). |
+| `pytest` | **Reversed.** Test suite migrated from stdlib `unittest` to `pytest`, behavior-preserving (same scenarios, same assertions). `pytest` + `hypothesis` are a `dev` extra in `pyproject.toml` (`pip install .[dev]`), not a core dependency. |
+
+Neither substitution ever affected `resolver.py` or `graph.py`, which
+contain the actual resolution logic. Both reversals were mechanical,
+single-file(-group) changes once package installation was available (see
+FR-22, FR-23, and NFR-6's testable invariant). The `tree-sitter`
+substitution above is explicitly not scheduled for reversal.
 
 ### 6.3 Validated test scenarios
 - `fixtures/mini_pkg` — flat 4-file chain (`app → main → utils → core`),
-  used by the automated `unittest` suite (12 passing tests).
+  used by the automated `pytest` suite (56 passing tests, including two
+  `hypothesis` property-based tests over generated relative-import depths
+  and package-nesting depths).
 - `synthetic_pkg` — nested subpackages exercising level-2 relative
   imports, a fan-in point (3 independent callers of the same function),
   and 2 deliberately unresolved calls. Verified against the actual
@@ -370,7 +413,13 @@ single-file change once package installation is available.
 - Any code execution, dynamic analysis, or runtime instrumentation —
   Riftline is purely static.
 - IDE/editor integration.
-- Languages other than Python (blocked on the tree-sitter swap, §6.2).
+- Languages other than Python. This is not merely a tooling gap awaiting
+  the tree-sitter swap — per NFR-6 and §2.3, the core must remain
+  offline-buildable with zero third-party dependencies beyond `networkx`,
+  and adding `tree-sitter` for multi-language parsing would violate that
+  constraint in service of a feature v1 doesn't need. See §6.2 ("Deliberate
+  v1 design decisions") for the full rationale. Revisit only if
+  multi-language support is explicitly scoped for v2.
 
 ---
 
@@ -390,3 +439,13 @@ If you only read one section, read this one:
   missing `file`/`lineno` metadata, per FR-11).
 - **Implemented bonus:** package re-export resolution is now covered by
   FR-9a and verified as part of the Week 2 scope.
+- **Week 4 (done):** FR-22 (packaging — `pip install .`, `riftline` console
+  entry point, declared deps, `Python >= 3.10`) and FR-23 (CI running the
+  test suite plus a dogfooding smoke check) are both `[Implemented]`. Both
+  substitution reversals scheduled in §6.2 are also done: `typer`/`rich`
+  replaced `argparse`/`print` in `cli.py` (NFR-6 verified — fenced to
+  `cli.py` only), and `pytest` (+ `hypothesis` for property-based tests)
+  replaced `unittest` in the test suite, behavior-preserving. The
+  `ast`-instead-of-`tree-sitter` substitution remains **not** scheduled for
+  reversal — see §6.2's "Deliberate v1 design decisions" table, NFR-6, and
+  §7.
