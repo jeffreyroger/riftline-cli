@@ -38,6 +38,29 @@ class TestExport:
         assert "digraph" in text
         assert "->" in text
 
+    def test_sanitized_node_ids_never_collide(self) -> None:
+        """Regression test: two distinct FQNs that only differ in where a
+        "." falls (e.g. "pkg.a_b" vs "pkg.a.b") must never sanitize to the
+        same Mermaid/DOT node id -- that would silently merge two unrelated
+        functions into one diagram node."""
+        import networkx as nx
+        from riftline.export import to_mermaid
+
+        g = nx.DiGraph()
+        g.add_node("pkg.a_b")
+        g.add_node("pkg.a.b")
+        text = to_mermaid(g)
+
+        # Extract the node id each declaration line uses (the token before "[").
+        node_ids = [
+            line.split("[", 1)[0].strip()
+            for line in text.splitlines()
+            if "[" in line
+        ]
+        assert len(node_ids) == len(set(node_ids)), (
+            f"sanitized node ids collided: {node_ids}"
+        )
+
     def test_cli_export_writes_json_file(self, graph) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             out_path = Path(tmpdir) / "export.json"
@@ -53,3 +76,21 @@ class TestExport:
             payload = json.loads(out_path.read_text(encoding="utf-8"))
             assert "nodes" in payload
             assert "edges" in payload
+
+    def test_cli_export_out_in_nonexistent_dir_fails_cleanly(self) -> None:
+        """Regression test: a bad --out path must produce a clear, specific
+        error message and exit code 1 (NFR-4), never an unhandled traceback."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            bad_out = Path(tmpdir) / "no_such_subdir" / "out.json"
+            completed = subprocess.run(
+                [sys.executable, "-m", "riftline.cli", "export", "--format", "json", "--path", str(FIXTURES), "--out", str(bad_out)],
+                capture_output=True,
+                text=True,
+                cwd=str(ROOT),
+                check=False,
+            )
+            assert completed.returncode == 1
+            assert "Traceback" not in completed.stdout
+            assert "Traceback" not in completed.stderr
+            assert "Error" in completed.stdout
+            assert not bad_out.exists()

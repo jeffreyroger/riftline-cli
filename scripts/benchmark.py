@@ -17,7 +17,7 @@ import argparse
 import time
 from pathlib import Path
 
-from riftline.graph import build_graph, find_python_files
+from riftline.graph import build_graph, find_python_files, real_nodes
 
 
 def main() -> None:
@@ -37,7 +37,7 @@ def main() -> None:
 
     print(f"Path scanned    : {root}")
     print(f"Files scanned   : {len(files)}")
-    print(f"Functions found : {graph.number_of_nodes()}")
+    print(f"Functions found : {len(real_nodes(graph))}")
     print(f"Edges resolved  : {resolved}")
     print(f"Edges unresolved: {unresolved}")
     print(f"Elapsed         : {elapsed:.3f}s (wall-clock, time.perf_counter)")

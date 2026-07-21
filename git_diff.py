@@ -20,10 +20,10 @@ import os
 import re
 import subprocess
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
-from .parser import parse
+from .parser import parse, _PARSE_FAILURES
 
 
 # ---------------------------------------------------------------------------
@@ -255,6 +255,16 @@ def find_changed_functions(
                     os.unlink(tmp_path)
                 except OSError:
                     pass
+
+        if parsed.parse_error is not None:
+            # parser.py recorded this failure against the throwaway temp
+            # file's path (e.g. /tmp/tmpXXXX.py), since that's literally
+            # what it parsed. Correct it to the real repo file so the
+            # parse-failure report points somewhere the user can actually
+            # find and fix, instead of a meaningless temp path.
+            corrected = replace(parsed.parse_error, path=root / rel_path)
+            if _PARSE_FAILURES and _PARSE_FAILURES[-1] is parsed.parse_error:
+                _PARSE_FAILURES[-1] = corrected
 
         abs_path = root / rel_path
         try:

@@ -119,6 +119,13 @@ def find_symbol(graph: nx.DiGraph, query: str) -> list[str]:
     Returns a list so the caller can decide: 0 -> not found, 1 -> use it
     directly, 2+ -> ask the user to disambiguate.
     """
+    if not query:
+        # Every string contains the empty substring, so an empty query
+        # would otherwise fall through to substring_matches and "match"
+        # every function in the graph -- never a meaningful search result,
+        # just a footgun for an empty/blank symbol argument.
+        return []
+
     nodes = real_nodes(graph)
     if query in nodes:
         return [query]

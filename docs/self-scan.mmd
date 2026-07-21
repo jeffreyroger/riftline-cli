@@ -1,508 +1,526 @@
 flowchart TD
-    riftline_cli__main["riftline.cli._main"]
-    riftline_cli__print_parse_failures["riftline.cli._print_parse_failures"]
-    riftline_cli__print_test_suggestions["riftline.cli._print_test_suggestions"]
-    riftline_cli__resolve_symbol_or_exit["riftline.cli._resolve_symbol_or_exit"]
-    riftline_cli__validated_root["riftline.cli._validated_root"]
-    riftline_cli__version_callback["riftline.cli._version_callback"]
-    riftline_cli_cmd_diff["riftline.cli.cmd_diff"]
-    riftline_cli_cmd_export["riftline.cli.cmd_export"]
-    riftline_cli_cmd_hotspots["riftline.cli.cmd_hotspots"]
-    riftline_cli_cmd_impact["riftline.cli.cmd_impact"]
-    riftline_cli_cmd_scan["riftline.cli.cmd_scan"]
-    riftline_cli_main["riftline.cli.main"]
-    riftline_export__escape_label["riftline.export._escape_label"]
-    riftline_export__sanitize_identifier["riftline.export._sanitize_identifier"]
-    riftline_export_to_dot["riftline.export.to_dot"]
-    riftline_export_to_json["riftline.export.to_json"]
-    riftline_export_to_mermaid["riftline.export.to_mermaid"]
-    riftline_git_diff_ChangedFunction["riftline.git_diff.ChangedFunction"]
-    riftline_git_diff__Hunk["riftline.git_diff._Hunk"]
-    riftline_git_diff__assert_git_repo["riftline.git_diff._assert_git_repo"]
-    riftline_git_diff__assert_ref_exists["riftline.git_diff._assert_ref_exists"]
-    riftline_git_diff__module_name["riftline.git_diff._module_name"]
-    riftline_git_diff__overlaps["riftline.git_diff._overlaps"]
-    riftline_git_diff__parse_diff_hunks["riftline.git_diff._parse_diff_hunks"]
-    riftline_git_diff__run_git["riftline.git_diff._run_git"]
-    riftline_git_diff_find_changed_functions["riftline.git_diff.find_changed_functions"]
-    riftline_graph_blast_radius["riftline.graph.blast_radius"]
-    riftline_graph_build_graph["riftline.graph.build_graph"]
-    riftline_graph_find_python_files["riftline.graph.find_python_files"]
-    riftline_graph_find_symbol["riftline.graph.find_symbol"]
-    riftline_graph_function_at_line["riftline.graph.function_at_line"]
-    riftline_graph_hotspots["riftline.graph.hotspots"]
-    riftline_graph_merged_blast_radius["riftline.graph.merged_blast_radius"]
-    riftline_graph_real_nodes["riftline.graph.real_nodes"]
-    riftline_parser_AttributeCall["riftline.parser.AttributeCall"]
-    riftline_parser_ClassInfo["riftline.parser.ClassInfo"]
-    riftline_parser_FunctionInfo["riftline.parser.FunctionInfo"]
-    riftline_parser_ImportBinding["riftline.parser.ImportBinding"]
-    riftline_parser_ImportBinding_is_relative["riftline.parser.ImportBinding.is_relative"]
-    riftline_parser_ParseFailure["riftline.parser.ParseFailure"]
-    riftline_parser_ParsedFile["riftline.parser.ParsedFile"]
-    riftline_parser_ReExport["riftline.parser.ReExport"]
-    riftline_parser__callee_attribute["riftline.parser._callee_attribute"]
-    riftline_parser__callee_name["riftline.parser._callee_name"]
-    riftline_parser_clear_parse_failures["riftline.parser.clear_parse_failures"]
-    riftline_parser_extract_classes["riftline.parser.extract_classes"]
-    riftline_parser_extract_classes_walk_body["riftline.parser.extract_classes.walk_body"]
-    riftline_parser_extract_functions["riftline.parser.extract_functions"]
-    riftline_parser_extract_functions_visit["riftline.parser.extract_functions.visit"]
-    riftline_parser_extract_functions_walk_body["riftline.parser.extract_functions.walk_body"]
-    riftline_parser_extract_imports["riftline.parser.extract_imports"]
-    riftline_parser_extract_reexports["riftline.parser.extract_reexports"]
-    riftline_parser_extract_symbols["riftline.parser.extract_symbols"]
-    riftline_parser_get_parse_failures["riftline.parser.get_parse_failures"]
-    riftline_parser_parse["riftline.parser.parse"]
-    riftline_parser_parse_file["riftline.parser.parse_file"]
-    riftline_resolver_ClassMethods["riftline.resolver.ClassMethods"]
-    riftline_resolver_ResolvedCall["riftline.resolver.ResolvedCall"]
-    riftline_resolver__find_method_in_hierarchy["riftline.resolver._find_method_in_hierarchy"]
-    riftline_resolver__resolve_base_fqn["riftline.resolver._resolve_base_fqn"]
-    riftline_resolver__resolve_one["riftline.resolver._resolve_one"]
-    riftline_resolver__resolve_through_reexports["riftline.resolver._resolve_through_reexports"]
-    riftline_resolver_build_class_method_table["riftline.resolver.build_class_method_table"]
-    riftline_resolver_build_class_method_table_get_module["riftline.resolver.build_class_method_table.get_module"]
-    riftline_resolver_module_name_for_file["riftline.resolver.module_name_for_file"]
-    riftline_resolver_resolve_calls_for_file["riftline.resolver.resolve_calls_for_file"]
-    riftline_resolver_resolve_relative_module["riftline.resolver.resolve_relative_module"]
-    riftline_testmapper_suggest_test_file["riftline.testmapper.suggest_test_file"]
-    unknown______join["unknown:', '.join"]
-    unknown_____join["unknown:'.'.join"]
-    unknown___n__join["unknown:'\n'.join"]
-    unknown_KeyError["unknown:KeyError"]
-    unknown_Path["unknown:Path"]
-    unknown_Path_path_str__resolve["unknown:Path(path_str).resolve"]
-    unknown_Path_rel_path__with_suffix["unknown:Path(rel_path).with_suffix"]
-    unknown_Path_rel_path__with_suffix_____as_posix["unknown:Path(rel_path).with_suffix('').as_posix"]
-    unknown_Path_rel_path__with_suffix_____as_posix___replace["unknown:Path(rel_path).with_suffix('').as_posix().replace"]
-    unknown_SystemExit["unknown:SystemExit"]
-    unknown_Table["unknown:Table"]
-    unknown_Text["unknown:Text"]
-    unknown__FILE_RE_match["unknown:_FILE_RE.match"]
-    unknown__HUNK_RE_match["unknown:_HUNK_RE.match"]
-    unknown__PARSE_FAILURES_append["unknown:_PARSE_FAILURES.append"]
-    unknown__PARSE_FAILURES_clear["unknown:_PARSE_FAILURES.clear"]
-    unknown_abs_path_relative_to["unknown:abs_path.relative_to"]
-    unknown_abs_path_relative_to_root__with_suffix["unknown:abs_path.relative_to(root).with_suffix"]
-    unknown_alias_name_split["unknown:alias.name.split"]
-    unknown_all_parsed_get["unknown:all_parsed.get"]
-    unknown_all_symbols_get["unknown:all_symbols.get"]
-    unknown_app["unknown:app"]
-    unknown_app_callback["unknown:app.callback"]
-    unknown_app_command["unknown:app.command"]
-    unknown_ast_iter_child_nodes["unknown:ast.iter_child_nodes"]
-    unknown_ast_parse["unknown:ast.parse"]
-    unknown_ast_unparse["unknown:ast.unparse"]
-    unknown_ast_walk["unknown:ast.walk"]
-    unknown_attribute_calls_append["unknown:attribute_calls.append"]
-    unknown_b_rsplit["unknown:b.rsplit"]
-    unknown_base_name_split["unknown:base_name.split"]
-    unknown_calls_append["unknown:calls.append"]
-    unknown_candidate_is_file["unknown:candidate.is_file"]
-    unknown_changed_append["unknown:changed.append"]
-    unknown_classes_append["unknown:classes.append"]
-    unknown_console_print["unknown:console.print"]
-    unknown_content_lstrip["unknown:content.lstrip"]
-    unknown_context_map_get["unknown:context_map.get"]
-    unknown_current______init___py__exists["unknown:current / '__init__.py'.exists"]
-    unknown_current____pyproject_toml__exists["unknown:current / 'pyproject.toml'.exists"]
-    unknown_current____setup_py__exists["unknown:current / 'setup.py'.exists"]
-    unknown_current_module_split["unknown:current_module.split"]
-    unknown_d_get["unknown:d.get"]
-    unknown_data_get["unknown:data.get"]
-    unknown_diff_text_splitlines["unknown:diff_text.splitlines"]
-    unknown_fn_name_rsplit["unknown:fn.name.rsplit"]
-    unknown_functions_append["unknown:functions.append"]
-    unknown_get_module["unknown:get_module"]
-    unknown_getattr["unknown:getattr"]
-    unknown_graph_add_edge["unknown:graph.add_edge"]
-    unknown_graph_add_node["unknown:graph.add_node"]
-    unknown_graph_edges["unknown:graph.edges"]
-    unknown_graph_nodes["unknown:graph.nodes"]
-    unknown_graph_number_of_nodes["unknown:graph.number_of_nodes"]
-    unknown_hunks_append["unknown:hunks.append"]
-    unknown_hunks_by_file_items["unknown:hunks_by_file.items"]
-    unknown_hunks_by_file_setdefault["unknown:hunks_by_file.setdefault"]
-    unknown_hunks_by_file_setdefault_h_rel_path______append["unknown:hunks_by_file.setdefault(h.rel_path, []).append"]
-    unknown_int["unknown:int"]
-    unknown_isinstance["unknown:isinstance"]
-    unknown_json_dumps["unknown:json.dumps"]
-    unknown_label_replace["unknown:label.replace"]
-    unknown_len["unknown:len"]
-    unknown_lines_append["unknown:lines.append"]
-    unknown_list["unknown:list"]
-    unknown_m_group["unknown:m.group"]
-    unknown_matching_bases_append["unknown:matching_bases.append"]
-    unknown_module_split["unknown:module.split"]
-    unknown_n_endswith["unknown:n.endswith"]
-    unknown_n_startswith["unknown:n.startswith"]
-    unknown_nx_DiGraph["unknown:nx.DiGraph"]
-    unknown_nx_ancestors["unknown:nx.ancestors"]
-    unknown_os_unlink["unknown:os.unlink"]
-    unknown_out_path_write_text["unknown:out_path.write_text"]
-    unknown_parsed_imports_get["unknown:parsed.imports.get"]
-    unknown_parsed_by_module_items["unknown:parsed_by_module.items"]
-    unknown_parsed_by_module_values["unknown:parsed_by_module.values"]
-    unknown_path_read_text["unknown:path.read_text"]
-    unknown_path_relative_to["unknown:path.relative_to"]
-    unknown_path_relative_to_root__with_suffix["unknown:path.relative_to(root).with_suffix"]
-    unknown_pattern_format["unknown:pattern.format"]
-    unknown_print["unknown:print"]
-    unknown_ranked_sort["unknown:ranked.sort"]
-    unknown_re_sub["unknown:re.sub"]
-    unknown_reexports_append["unknown:reexports.append"]
-    unknown_rel_endswith["unknown:rel.endswith"]
-    unknown_results_append["unknown:results.append"]
-    unknown_root______init___py__exists["unknown:root / '__init__.py'.exists"]
-    unknown_root_exists["unknown:root.exists"]
-    unknown_root_is_dir["unknown:root.is_dir"]
-    unknown_root_resolve["unknown:root.resolve"]
-    unknown_root_rglob["unknown:root.rglob"]
-    unknown_seen_fqns_add["unknown:seen_fqns.add"]
-    unknown_set["unknown:set"]
-    unknown_sorted["unknown:sorted"]
-    unknown_stderr_lower["unknown:stderr.lower"]
-    unknown_stderr_strip["unknown:stderr.strip"]
-    unknown_stdout_strip["unknown:stdout.strip"]
-    unknown_str["unknown:str"]
-    unknown_subprocess_run["unknown:subprocess.run"]
-    unknown_sum["unknown:sum"]
-    unknown_symbols_add["unknown:symbols.add"]
-    unknown_table_add_column["unknown:table.add_column"]
-    unknown_table_add_row["unknown:table.add_row"]
-    unknown_table_get["unknown:table.get"]
-    unknown_table_fq_class__bases_append["unknown:table[fq_class].bases.append"]
-    unknown_table_fq_class__methods_add["unknown:table[fq_class].methods.add"]
-    unknown_tempfile_NamedTemporaryFile["unknown:tempfile.NamedTemporaryFile"]
-    unknown_tmp_write["unknown:tmp.write"]
-    unknown_typer_Argument["unknown:typer.Argument"]
-    unknown_typer_Exit["unknown:typer.Exit"]
-    unknown_typer_Option["unknown:typer.Option"]
-    unknown_visit["unknown:visit"]
-    unknown_visited_add["unknown:visited.add"]
-    unknown_walk_body["unknown:walk_body"]
-    riftline_cli__main -.-> unknown_app_callback
-    riftline_cli__main -.-> unknown_typer_Option
-    riftline_cli__print_parse_failures -.-> unknown_Text
-    riftline_cli__print_parse_failures -.-> unknown_console_print
-    riftline_cli__print_parse_failures -.-> unknown_len
-    riftline_cli__print_test_suggestions --> riftline_testmapper_suggest_test_file
-    riftline_cli__print_test_suggestions -.-> unknown_Text
-    riftline_cli__print_test_suggestions -.-> unknown_console_print
-    riftline_cli__print_test_suggestions -.-> unknown_set
-    riftline_cli__print_test_suggestions -.-> unknown_sorted
-    riftline_cli__resolve_symbol_or_exit --> riftline_graph_find_symbol
-    riftline_cli__resolve_symbol_or_exit -.-> unknown_SystemExit
-    riftline_cli__resolve_symbol_or_exit -.-> unknown_Text
-    riftline_cli__resolve_symbol_or_exit -.-> unknown_console_print
-    riftline_cli__resolve_symbol_or_exit -.-> unknown_len
-    riftline_cli__resolve_symbol_or_exit -.-> unknown_sorted
-    riftline_cli__validated_root --> riftline_graph_find_python_files
-    riftline_cli__validated_root -.-> unknown_Path
-    riftline_cli__validated_root -.-> unknown_Path_path_str__resolve
-    riftline_cli__validated_root -.-> unknown_SystemExit
-    riftline_cli__validated_root -.-> unknown_console_print
-    riftline_cli__validated_root -.-> unknown_root_exists
-    riftline_cli__validated_root -.-> unknown_root_is_dir
-    riftline_cli__version_callback -.-> unknown_console_print
-    riftline_cli__version_callback -.-> unknown_typer_Exit
-    riftline_cli_cmd_diff --> riftline_cli__print_parse_failures
-    riftline_cli_cmd_diff --> riftline_cli__print_test_suggestions
-    riftline_cli_cmd_diff --> riftline_cli__validated_root
-    riftline_cli_cmd_diff --> riftline_git_diff__assert_git_repo
-    riftline_cli_cmd_diff --> riftline_git_diff_find_changed_functions
-    riftline_cli_cmd_diff --> riftline_graph_build_graph
-    riftline_cli_cmd_diff --> riftline_graph_merged_blast_radius
-    riftline_cli_cmd_diff --> riftline_parser_clear_parse_failures
-    riftline_cli_cmd_diff --> riftline_parser_get_parse_failures
-    riftline_cli_cmd_diff -.-> unknown______join
-    riftline_cli_cmd_diff -.-> unknown_Text
-    riftline_cli_cmd_diff -.-> unknown_app_command
-    riftline_cli_cmd_diff -.-> unknown_console_print
-    riftline_cli_cmd_diff -.-> unknown_sorted
-    riftline_cli_cmd_diff -.-> unknown_str
-    riftline_cli_cmd_diff -.-> unknown_typer_Argument
-    riftline_cli_cmd_diff -.-> unknown_typer_Option
-    riftline_cli_cmd_export --> riftline_cli__validated_root
-    riftline_cli_cmd_export --> riftline_export_to_dot
-    riftline_cli_cmd_export --> riftline_export_to_json
-    riftline_cli_cmd_export --> riftline_export_to_mermaid
-    riftline_cli_cmd_export --> riftline_graph_build_graph
-    riftline_cli_cmd_export --> riftline_parser_clear_parse_failures
-    riftline_cli_cmd_export -.-> unknown_Path
-    riftline_cli_cmd_export -.-> unknown_app_command
-    riftline_cli_cmd_export -.-> unknown_out_path_write_text
-    riftline_cli_cmd_export -.-> unknown_print
-    riftline_cli_cmd_export -.-> unknown_typer_Option
-    riftline_cli_cmd_hotspots --> riftline_cli__print_parse_failures
-    riftline_cli_cmd_hotspots --> riftline_cli__validated_root
-    riftline_cli_cmd_hotspots --> riftline_graph_build_graph
-    riftline_cli_cmd_hotspots --> riftline_graph_hotspots
-    riftline_cli_cmd_hotspots --> riftline_parser_clear_parse_failures
-    riftline_cli_cmd_hotspots --> riftline_parser_get_parse_failures
-    riftline_cli_cmd_hotspots -.-> unknown_Table
-    riftline_cli_cmd_hotspots -.-> unknown_Text
-    riftline_cli_cmd_hotspots -.-> unknown_app_command
-    riftline_cli_cmd_hotspots -.-> unknown_console_print
-    riftline_cli_cmd_hotspots -.-> unknown_len
-    riftline_cli_cmd_hotspots -.-> unknown_str
-    riftline_cli_cmd_hotspots -.-> unknown_table_add_column
-    riftline_cli_cmd_hotspots -.-> unknown_table_add_row
-    riftline_cli_cmd_hotspots -.-> unknown_typer_Argument
-    riftline_cli_cmd_hotspots -.-> unknown_typer_Option
-    riftline_cli_cmd_impact --> riftline_cli__print_parse_failures
-    riftline_cli_cmd_impact --> riftline_cli__print_test_suggestions
-    riftline_cli_cmd_impact --> riftline_cli__resolve_symbol_or_exit
-    riftline_cli_cmd_impact --> riftline_cli__validated_root
-    riftline_cli_cmd_impact --> riftline_graph_blast_radius
-    riftline_cli_cmd_impact --> riftline_graph_build_graph
-    riftline_cli_cmd_impact --> riftline_parser_clear_parse_failures
-    riftline_cli_cmd_impact --> riftline_parser_get_parse_failures
-    riftline_cli_cmd_impact -.-> unknown_Table
-    riftline_cli_cmd_impact -.-> unknown_Text
-    riftline_cli_cmd_impact -.-> unknown_app_command
-    riftline_cli_cmd_impact -.-> unknown_console_print
-    riftline_cli_cmd_impact -.-> unknown_sorted
-    riftline_cli_cmd_impact -.-> unknown_table_add_column
-    riftline_cli_cmd_impact -.-> unknown_table_add_row
-    riftline_cli_cmd_impact -.-> unknown_typer_Argument
-    riftline_cli_cmd_impact -.-> unknown_typer_Option
-    riftline_cli_cmd_scan --> riftline_cli__print_parse_failures
-    riftline_cli_cmd_scan --> riftline_cli__validated_root
-    riftline_cli_cmd_scan --> riftline_graph_build_graph
-    riftline_cli_cmd_scan --> riftline_parser_clear_parse_failures
-    riftline_cli_cmd_scan --> riftline_parser_get_parse_failures
-    riftline_cli_cmd_scan -.-> unknown_app_command
-    riftline_cli_cmd_scan -.-> unknown_console_print
-    riftline_cli_cmd_scan -.-> unknown_d_get
-    riftline_cli_cmd_scan -.-> unknown_graph_edges
-    riftline_cli_cmd_scan -.-> unknown_graph_number_of_nodes
-    riftline_cli_cmd_scan -.-> unknown_sum
-    riftline_cli_cmd_scan -.-> unknown_typer_Argument
-    riftline_cli_main -.-> unknown_app
-    riftline_export__escape_label -.-> unknown_label_replace
-    riftline_export__sanitize_identifier -.-> unknown_re_sub
-    riftline_export_to_dot --> riftline_export__escape_label
-    riftline_export_to_dot --> riftline_export__sanitize_identifier
-    riftline_export_to_dot -.-> unknown___n__join
-    riftline_export_to_dot -.-> unknown_data_get
-    riftline_export_to_dot -.-> unknown_graph_edges
-    riftline_export_to_dot -.-> unknown_lines_append
-    riftline_export_to_dot -.-> unknown_sorted
-    riftline_export_to_dot -.-> unknown_str
-    riftline_export_to_json -.-> unknown_data_get
-    riftline_export_to_json -.-> unknown_graph_edges
-    riftline_export_to_json -.-> unknown_json_dumps
-    riftline_export_to_json -.-> unknown_sorted
-    riftline_export_to_json -.-> unknown_str
-    riftline_export_to_mermaid --> riftline_export__escape_label
-    riftline_export_to_mermaid --> riftline_export__sanitize_identifier
-    riftline_export_to_mermaid -.-> unknown___n__join
-    riftline_export_to_mermaid -.-> unknown_data_get
-    riftline_export_to_mermaid -.-> unknown_graph_edges
-    riftline_export_to_mermaid -.-> unknown_lines_append
-    riftline_export_to_mermaid -.-> unknown_sorted
-    riftline_export_to_mermaid -.-> unknown_str
-    riftline_git_diff__assert_git_repo --> riftline_git_diff__run_git
-    riftline_git_diff__assert_git_repo -.-> unknown_SystemExit
-    riftline_git_diff__assert_git_repo -.-> unknown_print
-    riftline_git_diff__assert_git_repo -.-> unknown_stderr_lower
-    riftline_git_diff__assert_git_repo -.-> unknown_stderr_strip
-    riftline_git_diff__assert_ref_exists --> riftline_git_diff__run_git
-    riftline_git_diff__assert_ref_exists -.-> unknown_SystemExit
-    riftline_git_diff__assert_ref_exists -.-> unknown_print
-    riftline_git_diff__module_name -.-> unknown_____join
-    riftline_git_diff__module_name -.-> unknown_abs_path_relative_to
-    riftline_git_diff__module_name -.-> unknown_abs_path_relative_to_root__with_suffix
-    riftline_git_diff__module_name -.-> unknown_list
-    riftline_git_diff__parse_diff_hunks --> riftline_git_diff__Hunk
-    riftline_git_diff__parse_diff_hunks -.-> unknown__FILE_RE_match
-    riftline_git_diff__parse_diff_hunks -.-> unknown__HUNK_RE_match
-    riftline_git_diff__parse_diff_hunks -.-> unknown_diff_text_splitlines
-    riftline_git_diff__parse_diff_hunks -.-> unknown_hunks_append
-    riftline_git_diff__parse_diff_hunks -.-> unknown_int
-    riftline_git_diff__parse_diff_hunks -.-> unknown_m_group
-    riftline_git_diff__parse_diff_hunks -.-> unknown_rel_endswith
-    riftline_git_diff__run_git -.-> unknown_str
-    riftline_git_diff__run_git -.-> unknown_subprocess_run
-    riftline_git_diff_find_changed_functions --> riftline_git_diff_ChangedFunction
-    riftline_git_diff_find_changed_functions --> riftline_git_diff__assert_git_repo
-    riftline_git_diff_find_changed_functions --> riftline_git_diff__assert_ref_exists
-    riftline_git_diff_find_changed_functions --> riftline_git_diff__module_name
-    riftline_git_diff_find_changed_functions --> riftline_git_diff__overlaps
-    riftline_git_diff_find_changed_functions --> riftline_git_diff__parse_diff_hunks
-    riftline_git_diff_find_changed_functions --> riftline_git_diff__run_git
-    riftline_git_diff_find_changed_functions --> riftline_parser_parse
-    riftline_git_diff_find_changed_functions -.-> unknown_Path
-    riftline_git_diff_find_changed_functions -.-> unknown_Path_rel_path__with_suffix
-    riftline_git_diff_find_changed_functions -.-> unknown_Path_rel_path__with_suffix_____as_posix
-    riftline_git_diff_find_changed_functions -.-> unknown_Path_rel_path__with_suffix_____as_posix___replace
-    riftline_git_diff_find_changed_functions -.-> unknown_SystemExit
-    riftline_git_diff_find_changed_functions -.-> unknown_changed_append
-    riftline_git_diff_find_changed_functions -.-> unknown_content_lstrip
-    riftline_git_diff_find_changed_functions -.-> unknown_hunks_by_file_items
-    riftline_git_diff_find_changed_functions -.-> unknown_hunks_by_file_setdefault
-    riftline_git_diff_find_changed_functions -.-> unknown_hunks_by_file_setdefault_h_rel_path______append
-    riftline_git_diff_find_changed_functions -.-> unknown_os_unlink
-    riftline_git_diff_find_changed_functions -.-> unknown_print
-    riftline_git_diff_find_changed_functions -.-> unknown_root_resolve
-    riftline_git_diff_find_changed_functions -.-> unknown_seen_fqns_add
-    riftline_git_diff_find_changed_functions -.-> unknown_set
-    riftline_git_diff_find_changed_functions -.-> unknown_sorted
-    riftline_git_diff_find_changed_functions -.-> unknown_stderr_strip
-    riftline_git_diff_find_changed_functions -.-> unknown_stdout_strip
-    riftline_git_diff_find_changed_functions -.-> unknown_tempfile_NamedTemporaryFile
-    riftline_git_diff_find_changed_functions -.-> unknown_tmp_write
-    riftline_graph_blast_radius -.-> unknown_KeyError
-    riftline_graph_blast_radius -.-> unknown_nx_ancestors
-    riftline_graph_build_graph --> riftline_graph_find_python_files
-    riftline_graph_build_graph --> riftline_parser_parse
-    riftline_graph_build_graph --> riftline_resolver_build_class_method_table
-    riftline_graph_build_graph --> riftline_resolver_module_name_for_file
-    riftline_graph_build_graph --> riftline_resolver_resolve_calls_for_file
-    riftline_graph_build_graph -.-> unknown_graph_add_edge
-    riftline_graph_build_graph -.-> unknown_graph_add_node
-    riftline_graph_build_graph -.-> unknown_nx_DiGraph
-    riftline_graph_build_graph -.-> unknown_parsed_by_module_items
-    riftline_graph_build_graph -.-> unknown_parsed_by_module_values
-    riftline_graph_build_graph -.-> unknown_str
-    riftline_graph_find_python_files -.-> unknown_root_rglob
-    riftline_graph_find_python_files -.-> unknown_sorted
-    riftline_graph_find_symbol --> riftline_graph_real_nodes
-    riftline_graph_find_symbol -.-> unknown_n_endswith
-    riftline_graph_function_at_line -.-> unknown_data_get
-    riftline_graph_function_at_line -.-> unknown_graph_nodes
-    riftline_graph_hotspots --> riftline_graph_real_nodes
-    riftline_graph_hotspots -.-> unknown_len
-    riftline_graph_hotspots -.-> unknown_nx_ancestors
-    riftline_graph_hotspots -.-> unknown_ranked_sort
-    riftline_graph_merged_blast_radius --> riftline_graph_blast_radius
-    riftline_graph_merged_blast_radius -.-> unknown_set
-    riftline_graph_real_nodes -.-> unknown_n_startswith
-    riftline_parser__callee_attribute -.-> unknown_ast_unparse
-    riftline_parser__callee_attribute -.-> unknown_isinstance
-    riftline_parser__callee_name -.-> unknown_isinstance
-    riftline_parser_clear_parse_failures -.-> unknown__PARSE_FAILURES_clear
-    riftline_parser_extract_classes --> riftline_parser_ClassInfo
-    riftline_parser_extract_classes -.-> unknown_ast_iter_child_nodes
-    riftline_parser_extract_classes -.-> unknown_ast_unparse
-    riftline_parser_extract_classes -.-> unknown_classes_append
-    riftline_parser_extract_classes -.-> unknown_isinstance
-    riftline_parser_extract_classes -.-> unknown_walk_body
-    riftline_parser_extract_classes_walk_body --> riftline_parser_ClassInfo
-    riftline_parser_extract_classes_walk_body -.-> unknown_ast_iter_child_nodes
-    riftline_parser_extract_classes_walk_body -.-> unknown_ast_unparse
-    riftline_parser_extract_classes_walk_body -.-> unknown_classes_append
-    riftline_parser_extract_classes_walk_body -.-> unknown_isinstance
-    riftline_parser_extract_classes_walk_body -.-> unknown_walk_body
-    riftline_parser_extract_functions --> riftline_parser_AttributeCall
-    riftline_parser_extract_functions --> riftline_parser_FunctionInfo
-    riftline_parser_extract_functions --> riftline_parser__callee_attribute
-    riftline_parser_extract_functions --> riftline_parser__callee_name
-    riftline_parser_extract_functions -.-> unknown_ast_iter_child_nodes
-    riftline_parser_extract_functions -.-> unknown_ast_walk
-    riftline_parser_extract_functions -.-> unknown_attribute_calls_append
-    riftline_parser_extract_functions -.-> unknown_calls_append
-    riftline_parser_extract_functions -.-> unknown_context_map_get
-    riftline_parser_extract_functions -.-> unknown_functions_append
-    riftline_parser_extract_functions -.-> unknown_getattr
-    riftline_parser_extract_functions -.-> unknown_isinstance
-    riftline_parser_extract_functions -.-> unknown_visit
-    riftline_parser_extract_functions -.-> unknown_walk_body
-    riftline_parser_extract_functions_visit -.-> unknown_ast_iter_child_nodes
-    riftline_parser_extract_functions_visit -.-> unknown_isinstance
-    riftline_parser_extract_functions_visit -.-> unknown_visit
-    riftline_parser_extract_functions_walk_body --> riftline_parser_AttributeCall
-    riftline_parser_extract_functions_walk_body --> riftline_parser_FunctionInfo
-    riftline_parser_extract_functions_walk_body --> riftline_parser__callee_attribute
-    riftline_parser_extract_functions_walk_body --> riftline_parser__callee_name
-    riftline_parser_extract_functions_walk_body -.-> unknown_ast_iter_child_nodes
-    riftline_parser_extract_functions_walk_body -.-> unknown_ast_walk
-    riftline_parser_extract_functions_walk_body -.-> unknown_attribute_calls_append
-    riftline_parser_extract_functions_walk_body -.-> unknown_calls_append
-    riftline_parser_extract_functions_walk_body -.-> unknown_context_map_get
-    riftline_parser_extract_functions_walk_body -.-> unknown_functions_append
-    riftline_parser_extract_functions_walk_body -.-> unknown_getattr
-    riftline_parser_extract_functions_walk_body -.-> unknown_isinstance
-    riftline_parser_extract_functions_walk_body -.-> unknown_walk_body
-    riftline_parser_extract_imports --> riftline_parser_ImportBinding
-    riftline_parser_extract_imports -.-> unknown_alias_name_split
-    riftline_parser_extract_imports -.-> unknown_ast_walk
-    riftline_parser_extract_imports -.-> unknown_isinstance
-    riftline_parser_extract_reexports --> riftline_parser_ReExport
-    riftline_parser_extract_reexports -.-> unknown_ast_walk
-    riftline_parser_extract_reexports -.-> unknown_isinstance
-    riftline_parser_extract_reexports -.-> unknown_reexports_append
-    riftline_parser_extract_symbols -.-> unknown_isinstance
-    riftline_parser_extract_symbols -.-> unknown_set
-    riftline_parser_extract_symbols -.-> unknown_symbols_add
-    riftline_parser_get_parse_failures -.-> unknown_list
-    riftline_parser_parse --> riftline_parser_ParsedFile
-    riftline_parser_parse --> riftline_parser_extract_classes
-    riftline_parser_parse --> riftline_parser_extract_functions
-    riftline_parser_parse --> riftline_parser_extract_imports
-    riftline_parser_parse --> riftline_parser_extract_reexports
-    riftline_parser_parse --> riftline_parser_extract_symbols
-    riftline_parser_parse --> riftline_parser_parse_file
-    riftline_parser_parse -.-> unknown_set
-    riftline_parser_parse_file --> riftline_parser_ParseFailure
-    riftline_parser_parse_file -.-> unknown__PARSE_FAILURES_append
-    riftline_parser_parse_file -.-> unknown_ast_parse
-    riftline_parser_parse_file -.-> unknown_path_read_text
-    riftline_parser_parse_file -.-> unknown_str
-    riftline_resolver__find_method_in_hierarchy --> riftline_resolver__find_method_in_hierarchy
-    riftline_resolver__find_method_in_hierarchy -.-> unknown______join
-    riftline_resolver__find_method_in_hierarchy -.-> unknown_b_rsplit
-    riftline_resolver__find_method_in_hierarchy -.-> unknown_len
-    riftline_resolver__find_method_in_hierarchy -.-> unknown_matching_bases_append
-    riftline_resolver__find_method_in_hierarchy -.-> unknown_set
-    riftline_resolver__find_method_in_hierarchy -.-> unknown_table_get
-    riftline_resolver__find_method_in_hierarchy -.-> unknown_visited_add
-    riftline_resolver__resolve_base_fqn --> riftline_resolver_resolve_relative_module
-    riftline_resolver__resolve_base_fqn -.-> unknown_base_name_split
-    riftline_resolver__resolve_base_fqn -.-> unknown_parsed_imports_get
-    riftline_resolver__resolve_one --> riftline_resolver__resolve_through_reexports
-    riftline_resolver__resolve_one --> riftline_resolver_resolve_relative_module
-    riftline_resolver__resolve_one -.-> unknown_all_symbols_get
-    riftline_resolver__resolve_one -.-> unknown_parsed_imports_get
-    riftline_resolver__resolve_through_reexports --> riftline_resolver__resolve_through_reexports
-    riftline_resolver__resolve_through_reexports --> riftline_resolver_resolve_relative_module
-    riftline_resolver__resolve_through_reexports -.-> unknown_all_parsed_get
-    riftline_resolver__resolve_through_reexports -.-> unknown_all_symbols_get
-    riftline_resolver__resolve_through_reexports -.-> unknown_set
-    riftline_resolver__resolve_through_reexports -.-> unknown_visited_add
-    riftline_resolver_build_class_method_table --> riftline_resolver_ClassMethods
-    riftline_resolver_build_class_method_table --> riftline_resolver__resolve_base_fqn
-    riftline_resolver_build_class_method_table --> riftline_resolver_module_name_for_file
-    riftline_resolver_build_class_method_table -.-> unknown_current______init___py__exists
-    riftline_resolver_build_class_method_table -.-> unknown_current____pyproject_toml__exists
-    riftline_resolver_build_class_method_table -.-> unknown_current____setup_py__exists
-    riftline_resolver_build_class_method_table -.-> unknown_fn_name_rsplit
-    riftline_resolver_build_class_method_table -.-> unknown_get_module
-    riftline_resolver_build_class_method_table -.-> unknown_isinstance
-    riftline_resolver_build_class_method_table -.-> unknown_set
-    riftline_resolver_build_class_method_table -.-> unknown_table_fq_class__bases_append
-    riftline_resolver_build_class_method_table -.-> unknown_table_fq_class__methods_add
-    riftline_resolver_build_class_method_table_get_module --> riftline_resolver_module_name_for_file
-    riftline_resolver_build_class_method_table_get_module -.-> unknown_current______init___py__exists
-    riftline_resolver_build_class_method_table_get_module -.-> unknown_current____pyproject_toml__exists
-    riftline_resolver_build_class_method_table_get_module -.-> unknown_current____setup_py__exists
-    riftline_resolver_module_name_for_file -.-> unknown_____join
-    riftline_resolver_module_name_for_file -.-> unknown_list
-    riftline_resolver_module_name_for_file -.-> unknown_path_relative_to
-    riftline_resolver_module_name_for_file -.-> unknown_path_relative_to_root__with_suffix
-    riftline_resolver_module_name_for_file -.-> unknown_root______init___py__exists
-    riftline_resolver_resolve_calls_for_file --> riftline_resolver_ResolvedCall
-    riftline_resolver_resolve_calls_for_file --> riftline_resolver__find_method_in_hierarchy
-    riftline_resolver_resolve_calls_for_file --> riftline_resolver__resolve_one
-    riftline_resolver_resolve_calls_for_file --> riftline_resolver_build_class_method_table
-    riftline_resolver_resolve_calls_for_file -.-> unknown_results_append
-    riftline_resolver_resolve_relative_module -.-> unknown_____join
-    riftline_resolver_resolve_relative_module -.-> unknown_current_module_split
-    riftline_resolver_resolve_relative_module -.-> unknown_len
-    riftline_resolver_resolve_relative_module -.-> unknown_module_split
-    riftline_testmapper_suggest_test_file -.-> unknown_Path
-    riftline_testmapper_suggest_test_file -.-> unknown_candidate_is_file
-    riftline_testmapper_suggest_test_file -.-> unknown_pattern_format
-    riftline_testmapper_suggest_test_file -.-> unknown_str
+    riftline_cli__main_7a818643["riftline.cli._main"]
+    riftline_cli__print_parse_failures_373cc298["riftline.cli._print_parse_failures"]
+    riftline_cli__print_test_suggestions_cba65ec7["riftline.cli._print_test_suggestions"]
+    riftline_cli__resolve_symbol_or_exit_6bdf1771["riftline.cli._resolve_symbol_or_exit"]
+    riftline_cli__validated_root_a23f8336["riftline.cli._validated_root"]
+    riftline_cli__version_callback_4268a47b["riftline.cli._version_callback"]
+    riftline_cli_cmd_diff_4f27d4fc["riftline.cli.cmd_diff"]
+    riftline_cli_cmd_export_7590097b["riftline.cli.cmd_export"]
+    riftline_cli_cmd_hotspots_1acbf4d7["riftline.cli.cmd_hotspots"]
+    riftline_cli_cmd_impact_69c638e2["riftline.cli.cmd_impact"]
+    riftline_cli_cmd_scan_00f2c969["riftline.cli.cmd_scan"]
+    riftline_cli_main_7e4e8527["riftline.cli.main"]
+    riftline_export__escape_label_10483147["riftline.export._escape_label"]
+    riftline_export__sanitize_identifier_1335faaf["riftline.export._sanitize_identifier"]
+    riftline_export_to_dot_5ec271c3["riftline.export.to_dot"]
+    riftline_export_to_json_dd1077d3["riftline.export.to_json"]
+    riftline_export_to_mermaid_b1aae001["riftline.export.to_mermaid"]
+    riftline_git_diff_ChangedFunction_a69f37f9["riftline.git_diff.ChangedFunction"]
+    riftline_git_diff__Hunk_8ee28c03["riftline.git_diff._Hunk"]
+    riftline_git_diff__assert_git_repo_f8e68240["riftline.git_diff._assert_git_repo"]
+    riftline_git_diff__assert_ref_exists_88dd3384["riftline.git_diff._assert_ref_exists"]
+    riftline_git_diff__module_name_be1f8f0e["riftline.git_diff._module_name"]
+    riftline_git_diff__overlaps_31414cf8["riftline.git_diff._overlaps"]
+    riftline_git_diff__parse_diff_hunks_0f7ca3a6["riftline.git_diff._parse_diff_hunks"]
+    riftline_git_diff__run_git_4fc47f23["riftline.git_diff._run_git"]
+    riftline_git_diff_find_changed_functions_b5dcdae8["riftline.git_diff.find_changed_functions"]
+    riftline_graph_blast_radius_0915210a["riftline.graph.blast_radius"]
+    riftline_graph_build_graph_84f9fe8d["riftline.graph.build_graph"]
+    riftline_graph_find_python_files_dbb8ae7f["riftline.graph.find_python_files"]
+    riftline_graph_find_symbol_4237300b["riftline.graph.find_symbol"]
+    riftline_graph_function_at_line_3996c458["riftline.graph.function_at_line"]
+    riftline_graph_hotspots_cfd5e891["riftline.graph.hotspots"]
+    riftline_graph_merged_blast_radius_510cdbee["riftline.graph.merged_blast_radius"]
+    riftline_graph_real_nodes_bb4cbc18["riftline.graph.real_nodes"]
+    riftline_parser_AttributeCall_ada9c3d1["riftline.parser.AttributeCall"]
+    riftline_parser_ClassInfo_92389d8c["riftline.parser.ClassInfo"]
+    riftline_parser_FunctionInfo_3adb4a45["riftline.parser.FunctionInfo"]
+    riftline_parser_ImportBinding_287beefb["riftline.parser.ImportBinding"]
+    riftline_parser_ImportBinding_is_relative_962f2891["riftline.parser.ImportBinding.is_relative"]
+    riftline_parser_ParseFailure_d15c4f28["riftline.parser.ParseFailure"]
+    riftline_parser_ParsedFile_f8a1e19e["riftline.parser.ParsedFile"]
+    riftline_parser_ReExport_0a5fe443["riftline.parser.ReExport"]
+    riftline_parser__callee_attribute_1659fbf7["riftline.parser._callee_attribute"]
+    riftline_parser__callee_name_172c852f["riftline.parser._callee_name"]
+    riftline_parser_clear_parse_failures_9bd3da8d["riftline.parser.clear_parse_failures"]
+    riftline_parser_extract_classes_81d71b45["riftline.parser.extract_classes"]
+    riftline_parser_extract_classes_walk_body_f0a0ef4b["riftline.parser.extract_classes.walk_body"]
+    riftline_parser_extract_functions_137c815d["riftline.parser.extract_functions"]
+    riftline_parser_extract_functions_visit_eecec0d8["riftline.parser.extract_functions.visit"]
+    riftline_parser_extract_functions_walk_body_30514c7f["riftline.parser.extract_functions.walk_body"]
+    riftline_parser_extract_imports_1f775ec5["riftline.parser.extract_imports"]
+    riftline_parser_extract_reexports_caed0ffd["riftline.parser.extract_reexports"]
+    riftline_parser_extract_symbols_46b76c63["riftline.parser.extract_symbols"]
+    riftline_parser_get_parse_failures_02540665["riftline.parser.get_parse_failures"]
+    riftline_parser_parse_a23fde01["riftline.parser.parse"]
+    riftline_parser_parse_file_e040cb8a["riftline.parser.parse_file"]
+    riftline_resolver_ClassMethods_f5b45910["riftline.resolver.ClassMethods"]
+    riftline_resolver_ResolvedCall_f045cd69["riftline.resolver.ResolvedCall"]
+    riftline_resolver__find_method_in_hierarchy_7a0c9317["riftline.resolver._find_method_in_hierarchy"]
+    riftline_resolver__resolve_attribute_base_as_module_0eb9ff3f["riftline.resolver._resolve_attribute_base_as_module"]
+    riftline_resolver__resolve_base_fqn_e651d310["riftline.resolver._resolve_base_fqn"]
+    riftline_resolver__resolve_one_7a97d1ee["riftline.resolver._resolve_one"]
+    riftline_resolver__resolve_through_reexports_1d5807de["riftline.resolver._resolve_through_reexports"]
+    riftline_resolver_build_class_method_table_4c06dc4b["riftline.resolver.build_class_method_table"]
+    riftline_resolver_build_class_method_table_get_module_ff7afee0["riftline.resolver.build_class_method_table.get_module"]
+    riftline_resolver_module_name_for_file_7d08df42["riftline.resolver.module_name_for_file"]
+    riftline_resolver_resolve_calls_for_file_050ea29e["riftline.resolver.resolve_calls_for_file"]
+    riftline_resolver_resolve_relative_module_c10de3de["riftline.resolver.resolve_relative_module"]
+    riftline_testmapper_suggest_test_file_b91a9574["riftline.testmapper.suggest_test_file"]
+    unknown______join_b99202d5["unknown:', '.join"]
+    unknown_____join_199b1304["unknown:'.'.join"]
+    unknown___n__join_1bc0e0c2["unknown:'\n'.join"]
+    unknown_KeyError_f84f5770["unknown:KeyError"]
+    unknown_Path_f5e4e4dc["unknown:Path"]
+    unknown_Path_path_str__resolve_50fcc8cb["unknown:Path(path_str).resolve"]
+    unknown_Path_rel_path__with_suffix_e0fc5a0c["unknown:Path(rel_path).with_suffix"]
+    unknown_Path_rel_path__with_suffix_____as_posix_23e185e0["unknown:Path(rel_path).with_suffix('').as_posix"]
+    unknown_Path_rel_path__with_suffix_____as_posix___replace_36fdd24c["unknown:Path(rel_path).with_suffix('').as_posix().replace"]
+    unknown_SystemExit_e332a50e["unknown:SystemExit"]
+    unknown_Table_b8f8da19["unknown:Table"]
+    unknown_Text_80440204["unknown:Text"]
+    unknown__FILE_RE_match_b987fcd6["unknown:_FILE_RE.match"]
+    unknown__HUNK_RE_match_d9fe8124["unknown:_HUNK_RE.match"]
+    unknown__PARSE_FAILURES_append_75e973f1["unknown:_PARSE_FAILURES.append"]
+    unknown__PARSE_FAILURES_clear_55b0e492["unknown:_PARSE_FAILURES.clear"]
+    unknown_abs_path_relative_to_d6316500["unknown:abs_path.relative_to"]
+    unknown_abs_path_relative_to_root__with_suffix_193cc4a6["unknown:abs_path.relative_to(root).with_suffix"]
+    unknown_alias_name_split_5d5d1d60["unknown:alias.name.split"]
+    unknown_all_parsed_get_e30164df["unknown:all_parsed.get"]
+    unknown_all_symbols_get_89be8040["unknown:all_symbols.get"]
+    unknown_app_d09f9fdc["unknown:app"]
+    unknown_app_callback_646442e1["unknown:app.callback"]
+    unknown_app_command_268a9d1e["unknown:app.command"]
+    unknown_ast_iter_child_nodes_8f3a9636["unknown:ast.iter_child_nodes"]
+    unknown_ast_parse_87879649["unknown:ast.parse"]
+    unknown_ast_unparse_efb8b6a6["unknown:ast.unparse"]
+    unknown_ast_walk_5eb2baa6["unknown:ast.walk"]
+    unknown_attribute_calls_append_7c41f0f1["unknown:attribute_calls.append"]
+    unknown_b_rsplit_cd7de18b["unknown:b.rsplit"]
+    unknown_base_name_split_c7668145["unknown:base_name.split"]
+    unknown_calls_append_f159360c["unknown:calls.append"]
+    unknown_candidate_is_file_4d18b5d2["unknown:candidate.is_file"]
+    unknown_changed_append_e49be259["unknown:changed.append"]
+    unknown_classes_append_d844c800["unknown:classes.append"]
+    unknown_console_print_49101326["unknown:console.print"]
+    unknown_content_lstrip_3b6d2139["unknown:content.lstrip"]
+    unknown_context_map_get_4b7ada03["unknown:context_map.get"]
+    unknown_current______init___py__exists_9ec273a8["unknown:current / '__init__.py'.exists"]
+    unknown_current____pyproject_toml__exists_84ec0fe6["unknown:current / 'pyproject.toml'.exists"]
+    unknown_current____setup_py__exists_6526ce15["unknown:current / 'setup.py'.exists"]
+    unknown_current_module_split_f2dc06fd["unknown:current_module.split"]
+    unknown_d_get_fe6ddb28["unknown:d.get"]
+    unknown_data_get_7ebf6bd9["unknown:data.get"]
+    unknown_diff_text_splitlines_5c224162["unknown:diff_text.splitlines"]
+    unknown_fn_name_rsplit_90bab23d["unknown:fn.name.rsplit"]
+    unknown_functions_append_23887107["unknown:functions.append"]
+    unknown_get_module_a630904c["unknown:get_module"]
+    unknown_getattr_5db6ef7a["unknown:getattr"]
+    unknown_graph_add_edge_0eb3104e["unknown:graph.add_edge"]
+    unknown_graph_add_node_2eecfa06["unknown:graph.add_node"]
+    unknown_graph_edges_018fbf5d["unknown:graph.edges"]
+    unknown_graph_nodes_23147eb4["unknown:graph.nodes"]
+    unknown_graph_nodes_resolved_symbol__get_a4ac0435["unknown:graph.nodes[resolved_symbol].get"]
+    unknown_hashlib_md5_ca7c4abb["unknown:hashlib.md5"]
+    unknown_hashlib_md5_name_encode__utf_8____hexdigest_7ddaf857["unknown:hashlib.md5(name.encode('utf-8')).hexdigest"]
+    unknown_hunks_append_72037a4c["unknown:hunks.append"]
+    unknown_hunks_by_file_items_4dfa563b["unknown:hunks_by_file.items"]
+    unknown_hunks_by_file_setdefault_75d13b8e["unknown:hunks_by_file.setdefault"]
+    unknown_hunks_by_file_setdefault_h_rel_path______append_4100301c["unknown:hunks_by_file.setdefault(h.rel_path, []).append"]
+    unknown_int_7ac4dc34["unknown:int"]
+    unknown_isinstance_0977b66e["unknown:isinstance"]
+    unknown_json_dumps_20829da6["unknown:json.dumps"]
+    unknown_label_replace_da9cc97a["unknown:label.replace"]
+    unknown_len_36dcd0af["unknown:len"]
+    unknown_lines_append_5c2bb480["unknown:lines.append"]
+    unknown_list_bcbd1346["unknown:list"]
+    unknown_m_group_0411ae09["unknown:m.group"]
+    unknown_matching_bases_append_8779f81d["unknown:matching_bases.append"]
+    unknown_module_split_eef030b0["unknown:module.split"]
+    unknown_n_endswith_b46831f3["unknown:n.endswith"]
+    unknown_n_startswith_31b4c69a["unknown:n.startswith"]
+    unknown_name_encode_0222f833["unknown:name.encode"]
+    unknown_nx_DiGraph_b6ba98ac["unknown:nx.DiGraph"]
+    unknown_nx_ancestors_e03aeded["unknown:nx.ancestors"]
+    unknown_os_unlink_2c4fa5a0["unknown:os.unlink"]
+    unknown_out_path_write_text_57c041e6["unknown:out_path.write_text"]
+    unknown_parsed_imports_get_9c455448["unknown:parsed.imports.get"]
+    unknown_parsed_by_module_items_acfc1191["unknown:parsed_by_module.items"]
+    unknown_parsed_by_module_values_63082042["unknown:parsed_by_module.values"]
+    unknown_path_read_text_9fc4e37f["unknown:path.read_text"]
+    unknown_path_relative_to_884ccfb2["unknown:path.relative_to"]
+    unknown_path_relative_to_root__with_suffix_05d9862c["unknown:path.relative_to(root).with_suffix"]
+    unknown_pattern_format_6bd1bc2d["unknown:pattern.format"]
+    unknown_print_01707ab8["unknown:print"]
+    unknown_ranked_sort_5fc65882["unknown:ranked.sort"]
+    unknown_re_sub_f9be14f4["unknown:re.sub"]
+    unknown_reexports_append_9abc3647["unknown:reexports.append"]
+    unknown_rel_endswith_aac6c6fa["unknown:rel.endswith"]
+    unknown_replace_e90bba79["unknown:replace"]
+    unknown_results_append_30d6aef9["unknown:results.append"]
+    unknown_root______init___py__exists_fc9e3431["unknown:root / '__init__.py'.exists"]
+    unknown_root_exists_58faa45a["unknown:root.exists"]
+    unknown_root_is_dir_0a82e278["unknown:root.is_dir"]
+    unknown_root_resolve_c22c119e["unknown:root.resolve"]
+    unknown_root_rglob_1a168c65["unknown:root.rglob"]
+    unknown_seen_fqns_add_ac71aae0["unknown:seen_fqns.add"]
+    unknown_set_a8c62dff["unknown:set"]
+    unknown_sorted_029922c7["unknown:sorted"]
+    unknown_stderr_lower_954b55e6["unknown:stderr.lower"]
+    unknown_stderr_strip_c9956cc1["unknown:stderr.strip"]
+    unknown_stdout_strip_4ea0a888["unknown:stdout.strip"]
+    unknown_str_590df026["unknown:str"]
+    unknown_subprocess_run_0fe6994f["unknown:subprocess.run"]
+    unknown_sum_43490928["unknown:sum"]
+    unknown_symbols_add_5178136b["unknown:symbols.add"]
+    unknown_table_add_column_f245a58b["unknown:table.add_column"]
+    unknown_table_add_row_98cd95ff["unknown:table.add_row"]
+    unknown_table_get_57d43291["unknown:table.get"]
+    unknown_table_fq_class__bases_append_e5cd5ee4["unknown:table[fq_class].bases.append"]
+    unknown_table_fq_class__methods_add_fc3ef063["unknown:table[fq_class].methods.add"]
+    unknown_tempfile_NamedTemporaryFile_abb83518["unknown:tempfile.NamedTemporaryFile"]
+    unknown_tmp_write_ef0af860["unknown:tmp.write"]
+    unknown_typer_Argument_227a34f1["unknown:typer.Argument"]
+    unknown_typer_Exit_3a1bbc9e["unknown:typer.Exit"]
+    unknown_typer_Option_8baf108c["unknown:typer.Option"]
+    unknown_visit_f23c6e24["unknown:visit"]
+    unknown_visited_add_e2e3e0e7["unknown:visited.add"]
+    unknown_walk_body_5439b028["unknown:walk_body"]
+    riftline_cli__main_7a818643 -.-> unknown_app_callback_646442e1
+    riftline_cli__main_7a818643 -.-> unknown_typer_Option_8baf108c
+    riftline_cli__print_parse_failures_373cc298 -.-> unknown_Text_80440204
+    riftline_cli__print_parse_failures_373cc298 -.-> unknown_console_print_49101326
+    riftline_cli__print_parse_failures_373cc298 -.-> unknown_len_36dcd0af
+    riftline_cli__print_test_suggestions_cba65ec7 --> riftline_testmapper_suggest_test_file_b91a9574
+    riftline_cli__print_test_suggestions_cba65ec7 -.-> unknown_Text_80440204
+    riftline_cli__print_test_suggestions_cba65ec7 -.-> unknown_console_print_49101326
+    riftline_cli__print_test_suggestions_cba65ec7 -.-> unknown_set_a8c62dff
+    riftline_cli__print_test_suggestions_cba65ec7 -.-> unknown_sorted_029922c7
+    riftline_cli__resolve_symbol_or_exit_6bdf1771 --> riftline_graph_find_symbol_4237300b
+    riftline_cli__resolve_symbol_or_exit_6bdf1771 -.-> unknown_SystemExit_e332a50e
+    riftline_cli__resolve_symbol_or_exit_6bdf1771 -.-> unknown_Text_80440204
+    riftline_cli__resolve_symbol_or_exit_6bdf1771 -.-> unknown_console_print_49101326
+    riftline_cli__resolve_symbol_or_exit_6bdf1771 -.-> unknown_len_36dcd0af
+    riftline_cli__resolve_symbol_or_exit_6bdf1771 -.-> unknown_sorted_029922c7
+    riftline_cli__validated_root_a23f8336 --> riftline_graph_find_python_files_dbb8ae7f
+    riftline_cli__validated_root_a23f8336 -.-> unknown_Path_f5e4e4dc
+    riftline_cli__validated_root_a23f8336 -.-> unknown_Path_path_str__resolve_50fcc8cb
+    riftline_cli__validated_root_a23f8336 -.-> unknown_SystemExit_e332a50e
+    riftline_cli__validated_root_a23f8336 -.-> unknown_console_print_49101326
+    riftline_cli__validated_root_a23f8336 -.-> unknown_root_exists_58faa45a
+    riftline_cli__validated_root_a23f8336 -.-> unknown_root_is_dir_0a82e278
+    riftline_cli__version_callback_4268a47b -.-> unknown_console_print_49101326
+    riftline_cli__version_callback_4268a47b -.-> unknown_typer_Exit_3a1bbc9e
+    riftline_cli_cmd_diff_4f27d4fc --> riftline_cli__print_parse_failures_373cc298
+    riftline_cli_cmd_diff_4f27d4fc --> riftline_cli__print_test_suggestions_cba65ec7
+    riftline_cli_cmd_diff_4f27d4fc --> riftline_cli__validated_root_a23f8336
+    riftline_cli_cmd_diff_4f27d4fc --> riftline_git_diff__assert_git_repo_f8e68240
+    riftline_cli_cmd_diff_4f27d4fc --> riftline_git_diff_find_changed_functions_b5dcdae8
+    riftline_cli_cmd_diff_4f27d4fc --> riftline_graph_build_graph_84f9fe8d
+    riftline_cli_cmd_diff_4f27d4fc --> riftline_graph_merged_blast_radius_510cdbee
+    riftline_cli_cmd_diff_4f27d4fc --> riftline_parser_clear_parse_failures_9bd3da8d
+    riftline_cli_cmd_diff_4f27d4fc --> riftline_parser_get_parse_failures_02540665
+    riftline_cli_cmd_diff_4f27d4fc -.-> unknown______join_b99202d5
+    riftline_cli_cmd_diff_4f27d4fc -.-> unknown_Text_80440204
+    riftline_cli_cmd_diff_4f27d4fc -.-> unknown_app_command_268a9d1e
+    riftline_cli_cmd_diff_4f27d4fc -.-> unknown_console_print_49101326
+    riftline_cli_cmd_diff_4f27d4fc -.-> unknown_sorted_029922c7
+    riftline_cli_cmd_diff_4f27d4fc -.-> unknown_str_590df026
+    riftline_cli_cmd_diff_4f27d4fc -.-> unknown_typer_Argument_227a34f1
+    riftline_cli_cmd_diff_4f27d4fc -.-> unknown_typer_Option_8baf108c
+    riftline_cli_cmd_export_7590097b --> riftline_cli__validated_root_a23f8336
+    riftline_cli_cmd_export_7590097b --> riftline_export_to_dot_5ec271c3
+    riftline_cli_cmd_export_7590097b --> riftline_export_to_json_dd1077d3
+    riftline_cli_cmd_export_7590097b --> riftline_export_to_mermaid_b1aae001
+    riftline_cli_cmd_export_7590097b --> riftline_graph_build_graph_84f9fe8d
+    riftline_cli_cmd_export_7590097b --> riftline_parser_clear_parse_failures_9bd3da8d
+    riftline_cli_cmd_export_7590097b -.-> unknown_Path_f5e4e4dc
+    riftline_cli_cmd_export_7590097b -.-> unknown_SystemExit_e332a50e
+    riftline_cli_cmd_export_7590097b -.-> unknown_app_command_268a9d1e
+    riftline_cli_cmd_export_7590097b -.-> unknown_console_print_49101326
+    riftline_cli_cmd_export_7590097b -.-> unknown_out_path_write_text_57c041e6
+    riftline_cli_cmd_export_7590097b -.-> unknown_print_01707ab8
+    riftline_cli_cmd_export_7590097b -.-> unknown_typer_Option_8baf108c
+    riftline_cli_cmd_hotspots_1acbf4d7 --> riftline_cli__print_parse_failures_373cc298
+    riftline_cli_cmd_hotspots_1acbf4d7 --> riftline_cli__validated_root_a23f8336
+    riftline_cli_cmd_hotspots_1acbf4d7 --> riftline_graph_build_graph_84f9fe8d
+    riftline_cli_cmd_hotspots_1acbf4d7 --> riftline_graph_hotspots_cfd5e891
+    riftline_cli_cmd_hotspots_1acbf4d7 --> riftline_parser_clear_parse_failures_9bd3da8d
+    riftline_cli_cmd_hotspots_1acbf4d7 --> riftline_parser_get_parse_failures_02540665
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_Table_b8f8da19
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_Text_80440204
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_app_command_268a9d1e
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_console_print_49101326
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_len_36dcd0af
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_str_590df026
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_table_add_column_f245a58b
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_table_add_row_98cd95ff
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_typer_Argument_227a34f1
+    riftline_cli_cmd_hotspots_1acbf4d7 -.-> unknown_typer_Option_8baf108c
+    riftline_cli_cmd_impact_69c638e2 --> riftline_cli__print_parse_failures_373cc298
+    riftline_cli_cmd_impact_69c638e2 --> riftline_cli__print_test_suggestions_cba65ec7
+    riftline_cli_cmd_impact_69c638e2 --> riftline_cli__resolve_symbol_or_exit_6bdf1771
+    riftline_cli_cmd_impact_69c638e2 --> riftline_cli__validated_root_a23f8336
+    riftline_cli_cmd_impact_69c638e2 --> riftline_graph_blast_radius_0915210a
+    riftline_cli_cmd_impact_69c638e2 --> riftline_graph_build_graph_84f9fe8d
+    riftline_cli_cmd_impact_69c638e2 --> riftline_parser_clear_parse_failures_9bd3da8d
+    riftline_cli_cmd_impact_69c638e2 --> riftline_parser_get_parse_failures_02540665
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_Table_b8f8da19
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_Text_80440204
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_app_command_268a9d1e
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_console_print_49101326
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_graph_nodes_resolved_symbol__get_a4ac0435
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_sorted_029922c7
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_table_add_column_f245a58b
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_table_add_row_98cd95ff
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_typer_Argument_227a34f1
+    riftline_cli_cmd_impact_69c638e2 -.-> unknown_typer_Option_8baf108c
+    riftline_cli_cmd_scan_00f2c969 --> riftline_cli__print_parse_failures_373cc298
+    riftline_cli_cmd_scan_00f2c969 --> riftline_cli__validated_root_a23f8336
+    riftline_cli_cmd_scan_00f2c969 --> riftline_graph_build_graph_84f9fe8d
+    riftline_cli_cmd_scan_00f2c969 --> riftline_graph_real_nodes_bb4cbc18
+    riftline_cli_cmd_scan_00f2c969 --> riftline_parser_clear_parse_failures_9bd3da8d
+    riftline_cli_cmd_scan_00f2c969 --> riftline_parser_get_parse_failures_02540665
+    riftline_cli_cmd_scan_00f2c969 -.-> unknown_app_command_268a9d1e
+    riftline_cli_cmd_scan_00f2c969 -.-> unknown_console_print_49101326
+    riftline_cli_cmd_scan_00f2c969 -.-> unknown_d_get_fe6ddb28
+    riftline_cli_cmd_scan_00f2c969 -.-> unknown_graph_edges_018fbf5d
+    riftline_cli_cmd_scan_00f2c969 -.-> unknown_len_36dcd0af
+    riftline_cli_cmd_scan_00f2c969 -.-> unknown_sum_43490928
+    riftline_cli_cmd_scan_00f2c969 -.-> unknown_typer_Argument_227a34f1
+    riftline_cli_main_7e4e8527 -.-> unknown_app_d09f9fdc
+    riftline_export__escape_label_10483147 -.-> unknown_label_replace_da9cc97a
+    riftline_export__sanitize_identifier_1335faaf -.-> unknown_hashlib_md5_ca7c4abb
+    riftline_export__sanitize_identifier_1335faaf -.-> unknown_hashlib_md5_name_encode__utf_8____hexdigest_7ddaf857
+    riftline_export__sanitize_identifier_1335faaf -.-> unknown_name_encode_0222f833
+    riftline_export__sanitize_identifier_1335faaf -.-> unknown_re_sub_f9be14f4
+    riftline_export_to_dot_5ec271c3 --> riftline_export__escape_label_10483147
+    riftline_export_to_dot_5ec271c3 --> riftline_export__sanitize_identifier_1335faaf
+    riftline_export_to_dot_5ec271c3 -.-> unknown___n__join_1bc0e0c2
+    riftline_export_to_dot_5ec271c3 -.-> unknown_data_get_7ebf6bd9
+    riftline_export_to_dot_5ec271c3 -.-> unknown_graph_edges_018fbf5d
+    riftline_export_to_dot_5ec271c3 -.-> unknown_lines_append_5c2bb480
+    riftline_export_to_dot_5ec271c3 -.-> unknown_sorted_029922c7
+    riftline_export_to_dot_5ec271c3 -.-> unknown_str_590df026
+    riftline_export_to_json_dd1077d3 -.-> unknown_data_get_7ebf6bd9
+    riftline_export_to_json_dd1077d3 -.-> unknown_graph_edges_018fbf5d
+    riftline_export_to_json_dd1077d3 -.-> unknown_json_dumps_20829da6
+    riftline_export_to_json_dd1077d3 -.-> unknown_sorted_029922c7
+    riftline_export_to_json_dd1077d3 -.-> unknown_str_590df026
+    riftline_export_to_mermaid_b1aae001 --> riftline_export__escape_label_10483147
+    riftline_export_to_mermaid_b1aae001 --> riftline_export__sanitize_identifier_1335faaf
+    riftline_export_to_mermaid_b1aae001 -.-> unknown___n__join_1bc0e0c2
+    riftline_export_to_mermaid_b1aae001 -.-> unknown_data_get_7ebf6bd9
+    riftline_export_to_mermaid_b1aae001 -.-> unknown_graph_edges_018fbf5d
+    riftline_export_to_mermaid_b1aae001 -.-> unknown_lines_append_5c2bb480
+    riftline_export_to_mermaid_b1aae001 -.-> unknown_sorted_029922c7
+    riftline_export_to_mermaid_b1aae001 -.-> unknown_str_590df026
+    riftline_git_diff__assert_git_repo_f8e68240 --> riftline_git_diff__run_git_4fc47f23
+    riftline_git_diff__assert_git_repo_f8e68240 -.-> unknown_SystemExit_e332a50e
+    riftline_git_diff__assert_git_repo_f8e68240 -.-> unknown_print_01707ab8
+    riftline_git_diff__assert_git_repo_f8e68240 -.-> unknown_stderr_lower_954b55e6
+    riftline_git_diff__assert_git_repo_f8e68240 -.-> unknown_stderr_strip_c9956cc1
+    riftline_git_diff__assert_ref_exists_88dd3384 --> riftline_git_diff__run_git_4fc47f23
+    riftline_git_diff__assert_ref_exists_88dd3384 -.-> unknown_SystemExit_e332a50e
+    riftline_git_diff__assert_ref_exists_88dd3384 -.-> unknown_print_01707ab8
+    riftline_git_diff__module_name_be1f8f0e -.-> unknown_____join_199b1304
+    riftline_git_diff__module_name_be1f8f0e -.-> unknown_abs_path_relative_to_d6316500
+    riftline_git_diff__module_name_be1f8f0e -.-> unknown_abs_path_relative_to_root__with_suffix_193cc4a6
+    riftline_git_diff__module_name_be1f8f0e -.-> unknown_list_bcbd1346
+    riftline_git_diff__parse_diff_hunks_0f7ca3a6 --> riftline_git_diff__Hunk_8ee28c03
+    riftline_git_diff__parse_diff_hunks_0f7ca3a6 -.-> unknown__FILE_RE_match_b987fcd6
+    riftline_git_diff__parse_diff_hunks_0f7ca3a6 -.-> unknown__HUNK_RE_match_d9fe8124
+    riftline_git_diff__parse_diff_hunks_0f7ca3a6 -.-> unknown_diff_text_splitlines_5c224162
+    riftline_git_diff__parse_diff_hunks_0f7ca3a6 -.-> unknown_hunks_append_72037a4c
+    riftline_git_diff__parse_diff_hunks_0f7ca3a6 -.-> unknown_int_7ac4dc34
+    riftline_git_diff__parse_diff_hunks_0f7ca3a6 -.-> unknown_m_group_0411ae09
+    riftline_git_diff__parse_diff_hunks_0f7ca3a6 -.-> unknown_rel_endswith_aac6c6fa
+    riftline_git_diff__run_git_4fc47f23 -.-> unknown_str_590df026
+    riftline_git_diff__run_git_4fc47f23 -.-> unknown_subprocess_run_0fe6994f
+    riftline_git_diff_find_changed_functions_b5dcdae8 --> riftline_git_diff_ChangedFunction_a69f37f9
+    riftline_git_diff_find_changed_functions_b5dcdae8 --> riftline_git_diff__assert_git_repo_f8e68240
+    riftline_git_diff_find_changed_functions_b5dcdae8 --> riftline_git_diff__assert_ref_exists_88dd3384
+    riftline_git_diff_find_changed_functions_b5dcdae8 --> riftline_git_diff__module_name_be1f8f0e
+    riftline_git_diff_find_changed_functions_b5dcdae8 --> riftline_git_diff__overlaps_31414cf8
+    riftline_git_diff_find_changed_functions_b5dcdae8 --> riftline_git_diff__parse_diff_hunks_0f7ca3a6
+    riftline_git_diff_find_changed_functions_b5dcdae8 --> riftline_git_diff__run_git_4fc47f23
+    riftline_git_diff_find_changed_functions_b5dcdae8 --> riftline_parser_parse_a23fde01
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_Path_f5e4e4dc
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_Path_rel_path__with_suffix_e0fc5a0c
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_Path_rel_path__with_suffix_____as_posix_23e185e0
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_Path_rel_path__with_suffix_____as_posix___replace_36fdd24c
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_SystemExit_e332a50e
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_changed_append_e49be259
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_content_lstrip_3b6d2139
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_hunks_by_file_items_4dfa563b
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_hunks_by_file_setdefault_75d13b8e
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_hunks_by_file_setdefault_h_rel_path______append_4100301c
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_os_unlink_2c4fa5a0
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_print_01707ab8
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_replace_e90bba79
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_root_resolve_c22c119e
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_seen_fqns_add_ac71aae0
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_set_a8c62dff
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_sorted_029922c7
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_stderr_strip_c9956cc1
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_stdout_strip_4ea0a888
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_tempfile_NamedTemporaryFile_abb83518
+    riftline_git_diff_find_changed_functions_b5dcdae8 -.-> unknown_tmp_write_ef0af860
+    riftline_graph_blast_radius_0915210a -.-> unknown_KeyError_f84f5770
+    riftline_graph_blast_radius_0915210a -.-> unknown_nx_ancestors_e03aeded
+    riftline_graph_build_graph_84f9fe8d --> riftline_graph_find_python_files_dbb8ae7f
+    riftline_graph_build_graph_84f9fe8d --> riftline_parser_parse_a23fde01
+    riftline_graph_build_graph_84f9fe8d --> riftline_resolver_build_class_method_table_4c06dc4b
+    riftline_graph_build_graph_84f9fe8d --> riftline_resolver_module_name_for_file_7d08df42
+    riftline_graph_build_graph_84f9fe8d --> riftline_resolver_resolve_calls_for_file_050ea29e
+    riftline_graph_build_graph_84f9fe8d -.-> unknown_graph_add_edge_0eb3104e
+    riftline_graph_build_graph_84f9fe8d -.-> unknown_graph_add_node_2eecfa06
+    riftline_graph_build_graph_84f9fe8d -.-> unknown_nx_DiGraph_b6ba98ac
+    riftline_graph_build_graph_84f9fe8d -.-> unknown_parsed_by_module_items_acfc1191
+    riftline_graph_build_graph_84f9fe8d -.-> unknown_parsed_by_module_values_63082042
+    riftline_graph_build_graph_84f9fe8d -.-> unknown_str_590df026
+    riftline_graph_find_python_files_dbb8ae7f -.-> unknown_root_rglob_1a168c65
+    riftline_graph_find_python_files_dbb8ae7f -.-> unknown_sorted_029922c7
+    riftline_graph_find_symbol_4237300b --> riftline_graph_real_nodes_bb4cbc18
+    riftline_graph_find_symbol_4237300b -.-> unknown_n_endswith_b46831f3
+    riftline_graph_function_at_line_3996c458 -.-> unknown_data_get_7ebf6bd9
+    riftline_graph_function_at_line_3996c458 -.-> unknown_graph_nodes_23147eb4
+    riftline_graph_hotspots_cfd5e891 --> riftline_graph_real_nodes_bb4cbc18
+    riftline_graph_hotspots_cfd5e891 -.-> unknown_len_36dcd0af
+    riftline_graph_hotspots_cfd5e891 -.-> unknown_nx_ancestors_e03aeded
+    riftline_graph_hotspots_cfd5e891 -.-> unknown_ranked_sort_5fc65882
+    riftline_graph_merged_blast_radius_510cdbee --> riftline_graph_blast_radius_0915210a
+    riftline_graph_merged_blast_radius_510cdbee -.-> unknown_set_a8c62dff
+    riftline_graph_real_nodes_bb4cbc18 -.-> unknown_n_startswith_31b4c69a
+    riftline_parser__callee_attribute_1659fbf7 -.-> unknown_ast_unparse_efb8b6a6
+    riftline_parser__callee_attribute_1659fbf7 -.-> unknown_isinstance_0977b66e
+    riftline_parser__callee_name_172c852f -.-> unknown_isinstance_0977b66e
+    riftline_parser_clear_parse_failures_9bd3da8d -.-> unknown__PARSE_FAILURES_clear_55b0e492
+    riftline_parser_extract_classes_81d71b45 --> riftline_parser_ClassInfo_92389d8c
+    riftline_parser_extract_classes_81d71b45 -.-> unknown_ast_iter_child_nodes_8f3a9636
+    riftline_parser_extract_classes_81d71b45 -.-> unknown_ast_unparse_efb8b6a6
+    riftline_parser_extract_classes_81d71b45 -.-> unknown_classes_append_d844c800
+    riftline_parser_extract_classes_81d71b45 -.-> unknown_isinstance_0977b66e
+    riftline_parser_extract_classes_81d71b45 -.-> unknown_walk_body_5439b028
+    riftline_parser_extract_classes_walk_body_f0a0ef4b --> riftline_parser_ClassInfo_92389d8c
+    riftline_parser_extract_classes_walk_body_f0a0ef4b -.-> unknown_ast_iter_child_nodes_8f3a9636
+    riftline_parser_extract_classes_walk_body_f0a0ef4b -.-> unknown_ast_unparse_efb8b6a6
+    riftline_parser_extract_classes_walk_body_f0a0ef4b -.-> unknown_classes_append_d844c800
+    riftline_parser_extract_classes_walk_body_f0a0ef4b -.-> unknown_isinstance_0977b66e
+    riftline_parser_extract_classes_walk_body_f0a0ef4b -.-> unknown_walk_body_5439b028
+    riftline_parser_extract_functions_137c815d --> riftline_parser_AttributeCall_ada9c3d1
+    riftline_parser_extract_functions_137c815d --> riftline_parser_FunctionInfo_3adb4a45
+    riftline_parser_extract_functions_137c815d --> riftline_parser__callee_attribute_1659fbf7
+    riftline_parser_extract_functions_137c815d --> riftline_parser__callee_name_172c852f
+    riftline_parser_extract_functions_137c815d -.-> unknown_ast_iter_child_nodes_8f3a9636
+    riftline_parser_extract_functions_137c815d -.-> unknown_ast_walk_5eb2baa6
+    riftline_parser_extract_functions_137c815d -.-> unknown_attribute_calls_append_7c41f0f1
+    riftline_parser_extract_functions_137c815d -.-> unknown_calls_append_f159360c
+    riftline_parser_extract_functions_137c815d -.-> unknown_context_map_get_4b7ada03
+    riftline_parser_extract_functions_137c815d -.-> unknown_functions_append_23887107
+    riftline_parser_extract_functions_137c815d -.-> unknown_getattr_5db6ef7a
+    riftline_parser_extract_functions_137c815d -.-> unknown_isinstance_0977b66e
+    riftline_parser_extract_functions_137c815d -.-> unknown_visit_f23c6e24
+    riftline_parser_extract_functions_137c815d -.-> unknown_walk_body_5439b028
+    riftline_parser_extract_functions_visit_eecec0d8 -.-> unknown_ast_iter_child_nodes_8f3a9636
+    riftline_parser_extract_functions_visit_eecec0d8 -.-> unknown_isinstance_0977b66e
+    riftline_parser_extract_functions_visit_eecec0d8 -.-> unknown_visit_f23c6e24
+    riftline_parser_extract_functions_walk_body_30514c7f --> riftline_parser_AttributeCall_ada9c3d1
+    riftline_parser_extract_functions_walk_body_30514c7f --> riftline_parser_FunctionInfo_3adb4a45
+    riftline_parser_extract_functions_walk_body_30514c7f --> riftline_parser__callee_attribute_1659fbf7
+    riftline_parser_extract_functions_walk_body_30514c7f --> riftline_parser__callee_name_172c852f
+    riftline_parser_extract_functions_walk_body_30514c7f -.-> unknown_ast_iter_child_nodes_8f3a9636
+    riftline_parser_extract_functions_walk_body_30514c7f -.-> unknown_ast_walk_5eb2baa6
+    riftline_parser_extract_functions_walk_body_30514c7f -.-> unknown_attribute_calls_append_7c41f0f1
+    riftline_parser_extract_functions_walk_body_30514c7f -.-> unknown_calls_append_f159360c
+    riftline_parser_extract_functions_walk_body_30514c7f -.-> unknown_context_map_get_4b7ada03
+    riftline_parser_extract_functions_walk_body_30514c7f -.-> unknown_functions_append_23887107
+    riftline_parser_extract_functions_walk_body_30514c7f -.-> unknown_getattr_5db6ef7a
+    riftline_parser_extract_functions_walk_body_30514c7f -.-> unknown_isinstance_0977b66e
+    riftline_parser_extract_functions_walk_body_30514c7f -.-> unknown_walk_body_5439b028
+    riftline_parser_extract_imports_1f775ec5 --> riftline_parser_ImportBinding_287beefb
+    riftline_parser_extract_imports_1f775ec5 -.-> unknown_alias_name_split_5d5d1d60
+    riftline_parser_extract_imports_1f775ec5 -.-> unknown_ast_walk_5eb2baa6
+    riftline_parser_extract_imports_1f775ec5 -.-> unknown_isinstance_0977b66e
+    riftline_parser_extract_reexports_caed0ffd --> riftline_parser_ReExport_0a5fe443
+    riftline_parser_extract_reexports_caed0ffd -.-> unknown_ast_walk_5eb2baa6
+    riftline_parser_extract_reexports_caed0ffd -.-> unknown_isinstance_0977b66e
+    riftline_parser_extract_reexports_caed0ffd -.-> unknown_reexports_append_9abc3647
+    riftline_parser_extract_symbols_46b76c63 -.-> unknown_isinstance_0977b66e
+    riftline_parser_extract_symbols_46b76c63 -.-> unknown_set_a8c62dff
+    riftline_parser_extract_symbols_46b76c63 -.-> unknown_symbols_add_5178136b
+    riftline_parser_get_parse_failures_02540665 -.-> unknown_list_bcbd1346
+    riftline_parser_parse_a23fde01 --> riftline_parser_ParsedFile_f8a1e19e
+    riftline_parser_parse_a23fde01 --> riftline_parser_extract_classes_81d71b45
+    riftline_parser_parse_a23fde01 --> riftline_parser_extract_functions_137c815d
+    riftline_parser_parse_a23fde01 --> riftline_parser_extract_imports_1f775ec5
+    riftline_parser_parse_a23fde01 --> riftline_parser_extract_reexports_caed0ffd
+    riftline_parser_parse_a23fde01 --> riftline_parser_extract_symbols_46b76c63
+    riftline_parser_parse_a23fde01 --> riftline_parser_parse_file_e040cb8a
+    riftline_parser_parse_a23fde01 -.-> unknown_set_a8c62dff
+    riftline_parser_parse_file_e040cb8a --> riftline_parser_ParseFailure_d15c4f28
+    riftline_parser_parse_file_e040cb8a -.-> unknown__PARSE_FAILURES_append_75e973f1
+    riftline_parser_parse_file_e040cb8a -.-> unknown_ast_parse_87879649
+    riftline_parser_parse_file_e040cb8a -.-> unknown_path_read_text_9fc4e37f
+    riftline_parser_parse_file_e040cb8a -.-> unknown_str_590df026
+    riftline_resolver__find_method_in_hierarchy_7a0c9317 --> riftline_resolver__find_method_in_hierarchy_7a0c9317
+    riftline_resolver__find_method_in_hierarchy_7a0c9317 -.-> unknown______join_b99202d5
+    riftline_resolver__find_method_in_hierarchy_7a0c9317 -.-> unknown_b_rsplit_cd7de18b
+    riftline_resolver__find_method_in_hierarchy_7a0c9317 -.-> unknown_len_36dcd0af
+    riftline_resolver__find_method_in_hierarchy_7a0c9317 -.-> unknown_matching_bases_append_8779f81d
+    riftline_resolver__find_method_in_hierarchy_7a0c9317 -.-> unknown_set_a8c62dff
+    riftline_resolver__find_method_in_hierarchy_7a0c9317 -.-> unknown_table_get_57d43291
+    riftline_resolver__find_method_in_hierarchy_7a0c9317 -.-> unknown_visited_add_e2e3e0e7
+    riftline_resolver__resolve_attribute_base_as_module_0eb9ff3f --> riftline_resolver_resolve_relative_module_c10de3de
+    riftline_resolver__resolve_base_fqn_e651d310 --> riftline_resolver_resolve_relative_module_c10de3de
+    riftline_resolver__resolve_base_fqn_e651d310 -.-> unknown_base_name_split_c7668145
+    riftline_resolver__resolve_base_fqn_e651d310 -.-> unknown_parsed_imports_get_9c455448
+    riftline_resolver__resolve_one_7a97d1ee --> riftline_resolver__resolve_through_reexports_1d5807de
+    riftline_resolver__resolve_one_7a97d1ee --> riftline_resolver_resolve_relative_module_c10de3de
+    riftline_resolver__resolve_one_7a97d1ee -.-> unknown_all_symbols_get_89be8040
+    riftline_resolver__resolve_one_7a97d1ee -.-> unknown_parsed_imports_get_9c455448
+    riftline_resolver__resolve_through_reexports_1d5807de --> riftline_resolver__resolve_through_reexports_1d5807de
+    riftline_resolver__resolve_through_reexports_1d5807de --> riftline_resolver_resolve_relative_module_c10de3de
+    riftline_resolver__resolve_through_reexports_1d5807de -.-> unknown_all_parsed_get_e30164df
+    riftline_resolver__resolve_through_reexports_1d5807de -.-> unknown_all_symbols_get_89be8040
+    riftline_resolver__resolve_through_reexports_1d5807de -.-> unknown_set_a8c62dff
+    riftline_resolver__resolve_through_reexports_1d5807de -.-> unknown_visited_add_e2e3e0e7
+    riftline_resolver_build_class_method_table_4c06dc4b --> riftline_resolver_ClassMethods_f5b45910
+    riftline_resolver_build_class_method_table_4c06dc4b --> riftline_resolver__resolve_base_fqn_e651d310
+    riftline_resolver_build_class_method_table_4c06dc4b --> riftline_resolver_module_name_for_file_7d08df42
+    riftline_resolver_build_class_method_table_4c06dc4b -.-> unknown_current______init___py__exists_9ec273a8
+    riftline_resolver_build_class_method_table_4c06dc4b -.-> unknown_current____pyproject_toml__exists_84ec0fe6
+    riftline_resolver_build_class_method_table_4c06dc4b -.-> unknown_current____setup_py__exists_6526ce15
+    riftline_resolver_build_class_method_table_4c06dc4b -.-> unknown_fn_name_rsplit_90bab23d
+    riftline_resolver_build_class_method_table_4c06dc4b -.-> unknown_get_module_a630904c
+    riftline_resolver_build_class_method_table_4c06dc4b -.-> unknown_isinstance_0977b66e
+    riftline_resolver_build_class_method_table_4c06dc4b -.-> unknown_set_a8c62dff
+    riftline_resolver_build_class_method_table_4c06dc4b -.-> unknown_table_fq_class__bases_append_e5cd5ee4
+    riftline_resolver_build_class_method_table_4c06dc4b -.-> unknown_table_fq_class__methods_add_fc3ef063
+    riftline_resolver_build_class_method_table_get_module_ff7afee0 --> riftline_resolver_module_name_for_file_7d08df42
+    riftline_resolver_build_class_method_table_get_module_ff7afee0 -.-> unknown_current______init___py__exists_9ec273a8
+    riftline_resolver_build_class_method_table_get_module_ff7afee0 -.-> unknown_current____pyproject_toml__exists_84ec0fe6
+    riftline_resolver_build_class_method_table_get_module_ff7afee0 -.-> unknown_current____setup_py__exists_6526ce15
+    riftline_resolver_module_name_for_file_7d08df42 -.-> unknown_____join_199b1304
+    riftline_resolver_module_name_for_file_7d08df42 -.-> unknown_list_bcbd1346
+    riftline_resolver_module_name_for_file_7d08df42 -.-> unknown_path_relative_to_884ccfb2
+    riftline_resolver_module_name_for_file_7d08df42 -.-> unknown_path_relative_to_root__with_suffix_05d9862c
+    riftline_resolver_module_name_for_file_7d08df42 -.-> unknown_root______init___py__exists_fc9e3431
+    riftline_resolver_resolve_calls_for_file_050ea29e --> riftline_resolver_ResolvedCall_f045cd69
+    riftline_resolver_resolve_calls_for_file_050ea29e --> riftline_resolver__find_method_in_hierarchy_7a0c9317
+    riftline_resolver_resolve_calls_for_file_050ea29e --> riftline_resolver__resolve_attribute_base_as_module_0eb9ff3f
+    riftline_resolver_resolve_calls_for_file_050ea29e --> riftline_resolver__resolve_one_7a97d1ee
+    riftline_resolver_resolve_calls_for_file_050ea29e --> riftline_resolver_build_class_method_table_4c06dc4b
+    riftline_resolver_resolve_calls_for_file_050ea29e -.-> unknown_all_symbols_get_89be8040
+    riftline_resolver_resolve_calls_for_file_050ea29e -.-> unknown_parsed_imports_get_9c455448
+    riftline_resolver_resolve_calls_for_file_050ea29e -.-> unknown_results_append_30d6aef9
+    riftline_resolver_resolve_calls_for_file_050ea29e -.-> unknown_set_a8c62dff
+    riftline_resolver_resolve_relative_module_c10de3de -.-> unknown_____join_199b1304
+    riftline_resolver_resolve_relative_module_c10de3de -.-> unknown_current_module_split_f2dc06fd
+    riftline_resolver_resolve_relative_module_c10de3de -.-> unknown_len_36dcd0af
+    riftline_resolver_resolve_relative_module_c10de3de -.-> unknown_module_split_eef030b0
+    riftline_testmapper_suggest_test_file_b91a9574 -.-> unknown_Path_f5e4e4dc
+    riftline_testmapper_suggest_test_file_b91a9574 -.-> unknown_candidate_is_file_4d18b5d2
+    riftline_testmapper_suggest_test_file_b91a9574 -.-> unknown_pattern_format_6bd1bc2d
+    riftline_testmapper_suggest_test_file_b91a9574 -.-> unknown_str_590df026

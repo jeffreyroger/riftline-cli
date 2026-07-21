@@ -37,74 +37,95 @@ its implementation:
 `resolver.py` (chains each file's import table against every other file's
 symbol table to turn raw names into resolved-or-flagged edges) →
 `graph.py` (builds a `networkx.DiGraph` and answers blast-radius/hotspots/
-fuzzy-search queries) → `cli.py` (the `riftline` command).
+fuzzy-search queries) → `cli.py` (the `riftline` command, built on Typer +
+Rich). `git_diff.py` sits beside `cli.py` as a second consumer of
+`graph.py`, mapping a `git diff` to the set of changed functions.
 
-## Current state: what's real and tested right now
+## Current state: this is a shipped v1, not a work in progress
 
-- Week 2 scope is complete and independently verified.
-- Attribute and method calls are now tracked as graph edges, resolved or
-  explicitly unresolved, rather than being silently dropped.
-- `riftline scan <path>` reports resolved and unresolved edge counts.
-- `riftline hotspots <path>` ranks functions by blast-radius size.
-- `riftline impact <symbol> [--path P]` supports fuzzy short-name matching
-  with explicit disambiguation when needed.
-- `riftline diff <base-ref> <head-ref> --path <dir>` is now a real command
-  backed by the git CLI and a merged, deduplicated blast-radius workflow.
-- Package re-export resolution is implemented for single- and multi-hop
-  chains in `__init__.py` files; broken chains remain unresolved rather
-  than guessed.
-- The regression suite is green at 42 tests, with dedicated fixtures for
-  method resolution, git diff behavior, and re-export chains.
-- A real path-validation bug was fixed: invalid paths no longer silently
-  report a zero-result scan with success exit status.
+All planned work (Weeks 1 through 4) is complete:
 
-The initial build happened in a sandboxed environment with no network
-access, so `pip install` for three planned dependencies wasn't possible.
-Each was swapped for a stdlib equivalent, and — this is the important
-part — **each swap is contained to exactly one file**:
+- Full cross-file symbol resolution: bare-name calls, `self.<method>()`
+  and inherited-method calls, package re-export chains (single- and
+  multi-hop), and `module.function()` attribute calls where `module` is a
+  locally-scanned submodule.
+- `riftline scan <path>` — resolved/unresolved edge counts (the
+  "functions found" count excludes synthetic `unknown:*` stub nodes, so it
+  reflects real functions only).
+- `riftline hotspots <path> [--limit N]` — rank functions by blast-radius
+  size.
+- `riftline impact <symbol> [--path P]` — fuzzy short-name matching with
+  explicit disambiguation.
+- `riftline diff <base-ref> <head-ref> --path <dir>` — merged,
+  deduplicated blast radius of every function a git diff touched.
+- `riftline export --format {mermaid,dot,json}` — graph serialization,
+  with resolved/unresolved edges visually distinguished, and
+  collision-proof node IDs for mermaid/dot.
+- SyntaxError resilience (FR-14): a single unparseable file is reported
+  and skipped, never aborts the whole scan.
+- Test-file suggestion heuristic, always printed under an explicit
+  "unverified, naming-convention only" heading — never presented as a
+  verified fact.
+- Packaging: `pip install .` works, with a `riftline` console entry point
+  and a `riftline --version` command wired from package metadata.
+- CI: GitHub Actions runs the full test suite on Python 3.10/3.11/3.12 on
+  every push/PR, plus a dogfooding smoke check (`riftline scan .` and a
+  JSON export/parse round-trip against Riftline's own source).
+- The regression suite is green at **67 tests** (pytest, with
+  `hypothesis` property-based tests for import-resolution edge cases),
+  covering method resolution, git diff behavior, re-export chains, and
+  CLI error handling.
+- A real path-validation bug was fixed early on: invalid paths no longer
+  silently report a zero-result scan with success exit status.
 
-| Was going to use | Using instead | Only affects |
-|---|---|---|
-| `tree-sitter` (for eventual multi-language support) | Python's built-in `ast` module | `parser.py` |
-| `typer` + `rich` (nicer CLI framework) | `argparse` + plain `print` | `cli.py` |
-| `pytest` | `unittest` | `tests/test_graph.py` |
+**All three originally-planned stdlib substitutions have been reversed**
+back to the real dependencies once network access was available:
+`typer` + `rich` replaced `argparse` + `print` (confined to `cli.py`), and
+`pytest` (+ `hypothesis`) replaced `unittest` (confined to `tests/` and a
+`dev` extra). The one substitution that is **not** scheduled for reversal
+is `ast` instead of `tree-sitter` in `parser.py` — that's a deliberate v1
+design decision (multi-language parsing is out of scope for v1, and
+`tree-sitter` would violate the offline-buildable-core constraint), not a
+temporary workaround. See the SRS §6.2 for the full rationale.
 
-None of this touched `resolver.py` or `graph.py` — the actual resolution
-algorithm and graph logic are exactly what was designed, not a simplified
-stand-in. When there's network access again, these three files can be
-swapped back without redesigning anything.
+## Known, disclosed gaps (not silently hidden)
 
-## Known limitations
+Two real gaps surfaced by a real-world benchmark against
+[scrapy/scrapy](https://github.com/scrapy/scrapy) remain open by design
+(reported, not fixed, since fixing them wasn't in scope for that
+measurement task) — see `docs/benchmark-results.md`:
 
-- FR-14 remains open: a single file with a `SyntaxError` still aborts the
-  whole scan rather than being reported and skipped.
-- Python-only support remains in place for the current implementation.
-- Graph export, test-file suggestion, and a real-world benchmark are still
-  pending Week 3 work.
+- Constructor-inferred `instance.method()` calls don't resolve when the
+  class was imported from another file (only works same-file).
+- Resolved edges to locally-defined classes (used as constructors)
+  produce graph nodes with no `file`/`lineno` metadata, since they never
+  go through the function-node-creation path.
+
+A running audit of further bugs found during self-review — some already
+fixed, all documented with repro steps — is tracked in
+`docs/bug-audit.md`.
 
 ## The full requirements spec
 
-See the companion document, **`riftline-SRS.md`**, for the formal,
-numbered functional/non-functional requirements, current implementation
-status per requirement, and a traceability summary at the end telling you
-exactly what's solid, what's next, and in what order.
+See the companion document, **[`riftline-SRS (1).md`](riftline-SRS%20(1).md)**,
+for the formal, numbered functional/non-functional requirements, current
+implementation status per requirement, and a traceability summary at the
+end telling you exactly what's solid and what (if anything) is still
+open.
 
-## Roadmap, short version
+## Verifying the current state
 
-1. **Week 3** — harden robustness around syntax errors, add graph export
-   (Mermaid/Graphviz/JSON), add test-file suggestion heuristics, and
-   benchmark against a real repository.
-2. **Week 4** — swap the three stdlib substitutions back to their
-   originally-planned libraries, set up the actual GitHub repo under
-   `riftline-cli`, add CI, and write a publish-ready README.
+```bash
+pip install -e ".[dev]"
+pytest tests/ -v
+```
 
-Run the test suite (`python3 -m unittest discover -s tests -v` from the
-repo root). Then run:
+Then:
 
 ```bash
 riftline scan fixtures/oop_pkg
 riftline diff HEAD~1 HEAD --path fixtures/diff_repo
 ```
 
-If the suite passes and those commands run without error, the environment
-matches the Week 2 state described here.
+If the suite passes (67 tests) and those commands run without error, the
+environment matches the state described here.

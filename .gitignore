@@ -8,3 +8,5 @@ dist/
 benchmarks/
 .pytest_cache/
 .hypothesis/
+*.whl
+self_graph.json

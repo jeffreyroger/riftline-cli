@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
-from .parser import ParsedFile
+from .parser import ParsedFile, ImportBinding
 
 
 def module_name_for_file(root: Path, path: Path) -> str:
@@ -73,6 +73,54 @@ class ResolvedCall:
     reason: str | None = None
 
 
+def _resolve_attribute_base_as_module(
+    binding: ImportBinding,
+    current_module: str,
+    is_package: bool,
+    all_symbols: dict[str, set[str]],
+) -> str | None:
+    """If `binding` is an import that refers to a fully-scanned local
+    MODULE (not a symbol defined inside one), return that module's dotted
+    name so `module.function()`-style attribute calls can be resolved the
+    same way bare `function()` calls already are. Returns None -- never a
+    guess -- if the binding can't be confirmed to be a module.
+
+    Two shapes, disambiguated by ``imported_name`` (parser.py's
+    ImportBinding never sets it to None for ``from X import Y``, only for
+    plain ``import X``):
+
+      - ``import x`` / ``import x.y as z`` (``imported_name is None``):
+        Python syntax guarantees this always binds a module -- ``binding.
+        module`` (or its relative-resolved equivalent) IS the target.
+
+      - ``from X import Y`` (``imported_name`` set): Y might be a symbol
+        defined in X (e.g. ``from .core import compute``) or a submodule
+        of X (e.g. ``from . import utils``). Only the latter is a module
+        reference. The only safe way to tell them apart without guessing
+        is to check whether "X.Y" is itself a module this scan actually
+        found -- a plain function/class name will never collide with a
+        real module's dotted name.
+    """
+    if binding.imported_name is None:
+        if binding.is_relative:
+            return None  # `import` is always absolute; this shouldn't occur.
+        target_module = binding.module
+    else:
+        if binding.is_relative:
+            parent = resolve_relative_module(
+                current_module, binding.level, binding.module, is_package=is_package
+            )
+        else:
+            parent = binding.module
+        if not parent:
+            return None
+        target_module = f"{parent}.{binding.imported_name}"
+
+    if target_module and target_module in all_symbols:
+        return target_module
+    return None
+
+
 def resolve_calls_for_file(
     parsed: ParsedFile,
     current_module: str,
@@ -124,6 +172,28 @@ def resolve_calls_for_file(
                         reason=resolution_reason
                     ))
                     resolved = True
+
+            if not resolved and attr_call.base != "self":
+                # module.function() -- attr_call.base is a plain (non-dotted)
+                # name, since dotted bases like "obj.attr" never match a
+                # single import binding's local_name and fall through
+                # unchanged. Only resolves when the base demonstrably names
+                # a module this scan actually found; otherwise stays
+                # unresolved below, same as before -- never a guess.
+                binding = parsed.imports.get(attr_call.base)
+                if binding is not None:
+                    is_pkg = (parsed.path.name == "__init__.py")
+                    target_module = _resolve_attribute_base_as_module(
+                        binding, current_module, is_pkg, all_symbols
+                    )
+                    if target_module is not None and attr_call.attr in all_symbols.get(target_module, set()):
+                        results.append(ResolvedCall(
+                            caller=caller_fqn,
+                            callee=f"{target_module}.{attr_call.attr}",
+                            confidence="resolved",
+                            reason=None
+                        ))
+                        resolved = True
 
             if not resolved:
                 if attr_call.base != "self":

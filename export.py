@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 
@@ -7,8 +8,18 @@ import networkx as nx
 
 
 def _sanitize_identifier(name: str) -> str:
-    sanitized = re.sub(r"[^0-9A-Za-z_]", "_", name)
-    return sanitized or "node"
+    """Turn an arbitrary node name into a valid Mermaid/DOT identifier.
+
+    Every non-alphanumeric character collapses to "_", which is lossy:
+    two genuinely different names (e.g. "pkg.a_b" and "pkg.a.b") can
+    produce the identical sanitized string, silently merging two unrelated
+    nodes into one in the rendered diagram. A short hash of the original
+    (pre-sanitized) name is appended so every distinct node name always
+    gets a distinct identifier, regardless of what characters it contains.
+    """
+    sanitized = re.sub(r"[^0-9A-Za-z_]", "_", name) or "node"
+    suffix = hashlib.md5(name.encode("utf-8")).hexdigest()[:8]
+    return f"{sanitized}_{suffix}"
 
 
 def _escape_label(label: str) -> str:

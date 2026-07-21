@@ -1,6 +1,8 @@
 """
 Regression tests for the graph builder and blast-radius query.
 """
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -68,6 +70,26 @@ class TestGraph:
         ranked = hotspots(graph, limit=1)
         assert len(ranked) == 1
 
+    def test_cli_hotspots_rejects_zero_limit(self):
+        """Regression test: `--limit 0` (or negative) must be a clean
+        NFR-4-style error, not a misleading 'No functions found.' or a
+        silently-wrong result from Python's negative-slice semantics."""
+        from typer.testing import CliRunner
+        from riftline.cli import app
+
+        result = CliRunner().invoke(app, ["hotspots", str(FIXTURES / "mini_pkg"), "--limit", "0"])
+        assert result.exit_code == 1
+        assert "Error" in result.output
+        assert "--limit" in result.output
+
+    def test_cli_hotspots_rejects_negative_limit(self):
+        from typer.testing import CliRunner
+        from riftline.cli import app
+
+        result = CliRunner().invoke(app, ["hotspots", str(FIXTURES / "synthetic_pkg"), "--limit", "-3"])
+        assert result.exit_code == 1
+        assert "Error" in result.output
+
     def test_find_symbol_exact_match(self, graph):
         matches = find_symbol(graph, "mini_pkg.core.low_level")
         assert matches == ["mini_pkg.core.low_level"]
@@ -78,6 +100,15 @@ class TestGraph:
 
     def test_find_symbol_no_match_returns_empty(self, graph):
         matches = find_symbol(graph, "does_not_exist_anywhere")
+        assert matches == []
+
+    def test_find_symbol_empty_query_returns_empty_not_everything(self, graph):
+        """Regression test: an empty query must never fall through to the
+        substring-match fallback, which would otherwise "match" every
+        function in the graph (every string contains the empty
+        substring) -- a confusing 'ambiguous' result for what should be a
+        clear 'no symbol given' case."""
+        matches = find_symbol(graph, "")
         assert matches == []
 
     def test_oop_self_call_resolves(self, graph):
@@ -333,3 +364,163 @@ class TestReExportResolution:
         assert ("reexport_pkg.caller.use_compute", "reexport_pkg.core.compute") in resolved_edges, (
             "Re-export should resolve to true origin even when package is scanned as root"
         )
+
+
+# ------------------------------------------------------------------
+# module.function() attribute-call resolution
+# ------------------------------------------------------------------
+
+class TestModuleAttributeCallResolution:
+    """Regression tests: `module.function()` (as opposed to
+    `from module import function`) must resolve when `module` is a
+    fully-scanned local module, and must NOT be guessed when the imported
+    name turns out to be a symbol (function/class) rather than a module.
+    """
+
+    def test_relative_import_of_submodule_resolves(self, tmp_path):
+        """`from . import utils` then `utils.helper()` -- utils is a
+        submodule of the current package, not a symbol defined in it."""
+        pkg = tmp_path / "pkg"
+        pkg.mkdir()
+        (pkg / "__init__.py").write_text("", encoding="utf-8")
+        (pkg / "utils.py").write_text("def helper():\n    return 1\n", encoding="utf-8")
+        (pkg / "app.py").write_text(
+            "from . import utils\n\ndef run():\n    return utils.helper()\n",
+            encoding="utf-8",
+        )
+
+        graph = build_graph(pkg)
+        resolved = {
+            (u, v) for u, v, d in graph.edges(data=True) if d["confidence"] == "resolved"
+        }
+        assert ("pkg.app.run", "pkg.utils.helper") in resolved
+
+    def test_absolute_aliased_submodule_import_resolves(self, tmp_path):
+        """`import pkg.sub.deep as d` then `d.deep_helper()`."""
+        pkg = tmp_path / "pkg"
+        sub = pkg / "sub"
+        sub.mkdir(parents=True)
+        (pkg / "__init__.py").write_text("", encoding="utf-8")
+        (sub / "__init__.py").write_text("", encoding="utf-8")
+        (sub / "deep.py").write_text("def deep_helper():\n    return 1\n", encoding="utf-8")
+        (pkg / "app.py").write_text(
+            "import pkg.sub.deep as d\n\ndef run():\n    return d.deep_helper()\n",
+            encoding="utf-8",
+        )
+
+        graph = build_graph(pkg)
+        resolved = {
+            (u, v) for u, v, d in graph.edges(data=True) if d["confidence"] == "resolved"
+        }
+        assert ("pkg.app.run", "pkg.sub.deep.deep_helper") in resolved
+
+    def test_imported_function_used_as_attribute_base_stays_unresolved(self, tmp_path):
+        """`from .core import compute` then `compute.something()` --
+        `compute` is a FUNCTION, not a module. Must never be guessed as
+        if it were the module `pkg.core` just because that module exists."""
+        pkg = tmp_path / "pkg"
+        pkg.mkdir()
+        (pkg / "__init__.py").write_text("", encoding="utf-8")
+        (pkg / "core.py").write_text("def compute(x):\n    return x\n", encoding="utf-8")
+        (pkg / "app.py").write_text(
+            "from .core import compute\n\ndef run():\n    return compute.something()\n",
+            encoding="utf-8",
+        )
+
+        graph = build_graph(pkg)
+        unresolved_targets = {
+            v for _, v, d in graph.edges(data=True) if d["confidence"] == "unresolved"
+        }
+        assert "unknown:compute.something" in unresolved_targets
+
+
+# ------------------------------------------------------------------
+# `riftline impact` on a class-used-as-constructor node must not crash
+# ------------------------------------------------------------------
+
+class TestCliImpactOnClassNodeDoesNotCrash:
+    """Regression test: a locally-defined class used as a constructor call
+    (e.g. `Widget()`) resolves to a graph node that was never passed
+    through the function-node-creation path, so it has no `file`/`lineno`
+    attributes. `riftline impact <ClassFQN>` must handle that gracefully
+    instead of crashing with an unhandled KeyError when it tries to look
+    up a test-file suggestion for it.
+    """
+
+    def _run_impact(self, *extra_args: str) -> tuple[str, int]:
+        from typer.testing import CliRunner
+        from riftline.cli import app
+
+        result = CliRunner().invoke(app, ["impact", *extra_args])
+        return result.output, result.exit_code
+
+    def test_impact_on_class_target_does_not_crash(self, tmp_path):
+        pkg = tmp_path / "pkg"
+        pkg.mkdir()
+        (pkg / "__init__.py").write_text("", encoding="utf-8")
+        (pkg / "widgets.py").write_text(
+            "class Widget:\n    pass\n\n\ndef make_widget():\n    return Widget()\n",
+            encoding="utf-8",
+        )
+
+        out, code = self._run_impact("pkg.widgets.Widget", "--path", str(pkg))
+
+        assert code == 0
+        assert "KeyError" not in out
+        assert "Traceback" not in out
+        assert "make_widget" in out
+
+
+class TestHotspotsTableDoesNotCorruptLongNames:
+    """
+    Regression test: a function name long enough to overflow the
+    "Function" table column must wrap onto extra lines, never get
+    truncated with an ellipsis. Truncation is what previously risked a
+    mangled replacement character mid-identifier on platforms where the
+    console's active encoding can't represent Rich's Unicode ellipsis
+    (verified on this project's own self-scan: `_assert_confidence_invariant`
+    came back as `..._assert_confidence_inva<corrupted>`). This must be a
+    real subprocess run -- the corruption is a byte-level encoding issue
+    that a CliRunner-captured (already-decoded) string can't reproduce.
+    """
+
+    def test_long_function_name_is_never_truncated_or_corrupted(self, tmp_path):
+        long_name = "a_very_long_function_name_that_will_not_fit_in_one_table_column_" * 2
+        pkg = tmp_path / "pkg"
+        pkg.mkdir()
+        (pkg / "__init__.py").write_text("", encoding="utf-8")
+        (pkg / "core.py").write_text(
+            f"def {long_name}():\n    return 1\n\n\ndef caller():\n    return {long_name}()\n",
+            encoding="utf-8",
+        )
+
+        completed = subprocess.run(
+            [sys.executable, "-m", "riftline.cli", "hotspots", str(pkg), "--limit", "5"],
+            capture_output=True,
+            text=False,  # raw bytes -- this is a byte-level encoding concern
+            cwd=str(Path(__file__).parent.parent),
+            check=False,
+        )
+        assert completed.returncode == 0
+
+        raw = completed.stdout
+        # No Unicode replacement character, in either its UTF-8 encoding or
+        # as a literal '?' produced by a lossy encode -- the real signal is
+        # that the full identifier is recoverable from the output at all.
+        assert "�".encode("utf-8") not in raw
+
+        decoded = raw.decode(sys.stdout.encoding or "utf-8", errors="strict")
+        # Reconstitute the identifier from wrapped table-cell fragments:
+        # a wrapped "Function" column produces one table row per fragment,
+        # each of the form "| <fragment> | <dependents or blank> |". Take
+        # only the first ("Function") cell of each data row (skipping the
+        # header/divider lines) and concatenate those, in order -- this
+        # must reproduce the full name exactly, proving nothing was
+        # truncated, dropped, or corrupted.
+        fragments = []
+        for line in decoded.splitlines():
+            parts = line.split("|")
+            if len(parts) == 4 and "Function" not in line and "---" not in line:
+                fragments.append(parts[1].strip())
+        reconstructed = "".join(fragments)
+        assert long_name in reconstructed

@@ -26,6 +26,7 @@ from .graph import (
     find_symbol,
     find_python_files,
     merged_blast_radius,
+    real_nodes,
 )
 from .parser import clear_parse_failures, get_parse_failures
 from .export import to_dot, to_json, to_mermaid
@@ -141,7 +142,7 @@ def cmd_scan(
     resolved = sum(1 for _, _, d in graph.edges(data=True) if d.get("confidence") == "resolved")
     unresolved = sum(1 for _, _, d in graph.edges(data=True) if d.get("confidence") == "unresolved")
     console.print(f"Scanned: {root}", markup=False, soft_wrap=True)
-    console.print(f"  functions found : {graph.number_of_nodes()}")
+    console.print(f"  functions found : {len(real_nodes(graph))}")
     console.print(f"  edges resolved  : [blue]{resolved}[/blue]")
     console.print(f"  edges unresolved: [red]{unresolved}[/red]  (flagged, not guessed)")
     _print_parse_failures(failures)
@@ -155,6 +156,12 @@ def cmd_hotspots(
     path: str = typer.Argument(".", help="Root of the package to scan."),
     limit: int = typer.Option(15, "--limit", help="Show top N (default 15)."),
 ) -> None:
+    if limit < 1:
+        console.print(
+            f"Error: --limit must be a positive integer, got {limit}.",
+            markup=False,
+        )
+        raise SystemExit(1)
     clear_parse_failures()
     root = _validated_root(path)
     graph = build_graph(root)
@@ -169,7 +176,13 @@ def cmd_hotspots(
     table = Table(
         title=Text(f"Top {len(ranked)} riskiest functions in {root} (by blast-radius size)"),
     )
-    table.add_column("Function")
+    # overflow="fold": wrap long function names onto extra lines instead of
+    # truncating with an ellipsis. Truncation risks emitting a mangled
+    # replacement character mid-identifier on platforms where the Unicode
+    # ellipsis isn't valid in the console's active encoding (e.g. Windows
+    # cp1252) -- folding never needs that character at all, so the full
+    # name is always readable, just wrapped rather than cut short.
+    table.add_column("Function", overflow="fold")
     table.add_column("Dependents", justify="right")
     shown = 0
     for name, count in ranked:
@@ -204,6 +217,13 @@ def cmd_impact(
         console.print(Text(f"(matched '{symbol}' -> {resolved_symbol})"), soft_wrap=True)
 
     affected = blast_radius(graph, resolved_symbol)
+    # Not every graph node has file metadata -- e.g. a locally-defined class
+    # used as a constructor gets a bare edge-target node with no attributes
+    # at all (it was never passed through the function-node-creation path).
+    # Skip the test-suggestion section rather than crashing or guessing a
+    # file that doesn't exist.
+    resolved_file = graph.nodes[resolved_symbol].get("file")
+
     if not affected:
         console.print(
             Text(
@@ -211,16 +231,18 @@ def cmd_impact(
                 style="green",
             )
         )
-        _print_test_suggestions([graph.nodes[resolved_symbol]["file"]])
+        if resolved_file is not None:
+            _print_test_suggestions([resolved_file])
         _print_parse_failures(failures)
         return
 
     table = Table(title=Text(f"Blast radius of {resolved_symbol}"))
-    table.add_column("Dependent function")
+    table.add_column("Dependent function", overflow="fold")
     for name in sorted(affected):
         table.add_row(Text(name))
     console.print(table)
-    _print_test_suggestions([graph.nodes[resolved_symbol]["file"]])
+    if resolved_file is not None:
+        _print_test_suggestions([resolved_file])
     _print_parse_failures(failures)
 
 
@@ -256,7 +278,15 @@ def cmd_export(
 
     if out:
         out_path = Path(out)
-        out_path.write_text(content, encoding="utf-8")
+        try:
+            out_path.write_text(content, encoding="utf-8")
+        except OSError as exc:
+            console.print(
+                f"Error: could not write to '{out_path}': {exc.strerror or exc}",
+                markup=False,
+                soft_wrap=True,
+            )
+            raise SystemExit(1)
     else:
         # Raw content -- meant for redirection/piping into other tools, so it
         # is never passed through Rich markup or styling.
@@ -314,6 +344,12 @@ def cmd_diff(
         console.print(f"  {exc}", markup=False)
         console.print("  Impact analysis skipped. Fix the syntax error and re-run.")
         return
+
+    # Refresh: build_graph() just scanned the whole package and may have
+    # found parse failures beyond what find_changed_functions() saw (which
+    # only parses files touched by the diff itself). Without this, a broken
+    # file elsewhere in the package would be silently omitted below.
+    failures = get_parse_failures()
 
     # Gather only the changed FQNs that actually exist in the graph.
     known_targets = [fn.fqn for fn in changed if fn.fqn in graph]
