@@ -517,8 +517,15 @@ class TestHotspotsTableDoesNotCorruptLongNames:
         # header/divider lines) and concatenate those, in order -- this
         # must reproduce the full name exactly, proving nothing was
         # truncated, dropped, or corrupted.
+        #
+        # Rich's own ASCII-vs-Unicode fallback means the vertical separator
+        # can be either "|" (this project's Windows/non-tty ASCII mode) or
+        # "│" (Unicode box-drawing, used on e.g. Linux CI where stdout
+        # is natively UTF-8) -- normalize both to "|" before splitting so
+        # this test doesn't depend on which one Rich picked.
+        normalized = decoded.replace("│", "|")
         fragments = []
-        for line in decoded.splitlines():
+        for line in normalized.splitlines():
             parts = line.split("|")
             if len(parts) == 4 and "Function" not in line and "---" not in line:
                 fragments.append(parts[1].strip())
