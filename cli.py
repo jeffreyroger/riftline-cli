@@ -64,15 +64,15 @@ def _validated_root(path_str: str) -> Path:
     found' with no explanation that used to happen on a bad path."""
     root = Path(path_str).resolve()
     if not root.exists():
-        console.print(f"Error: path does not exist: {root}", markup=False)
+        console.print(f"Error: path does not exist: {root}", markup=False, soft_wrap=True)
         console.print("Check for a typo, or run 'dir' (Windows) / 'ls' (Mac/Linux) to see what's actually there.")
         raise SystemExit(1)
     if not root.is_dir():
-        console.print(f"Error: not a directory: {root}", markup=False)
+        console.print(f"Error: not a directory: {root}", markup=False, soft_wrap=True)
         raise SystemExit(1)
     py_files = find_python_files(root)
     if not py_files:
-        console.print(f"Error: no .py files found under: {root}", markup=False)
+        console.print(f"Error: no .py files found under: {root}", markup=False, soft_wrap=True)
         console.print("Check the path points at the folder that actually contains the code "
                       "(e.g. the folder with __init__.py / .py files in it, not its parent).")
         raise SystemExit(1)
@@ -94,7 +94,7 @@ def _print_test_suggestions(file_paths: list) -> None:
     for path in sorted(set(file_paths)):
         suggestion = suggest_test_file(path)
         if suggestion:
-            console.print(Text(f"  - {path} -> {suggestion}", style="dim italic"))
+            console.print(Text(f"  - {path} -> {suggestion}", style="dim italic"), soft_wrap=True)
             found_any = True
     if not found_any:
         console.print(Text("  - no matching test file found", style="dim italic"))
@@ -110,7 +110,7 @@ def _print_parse_failures(failures: list) -> None:
         location = f"{failure.path}"
         if failure.line is not None:
             location = f"{location}:{failure.line}"
-        console.print(Text(f"  - {location}: {failure.message}", style="yellow"))
+        console.print(Text(f"  - {location}: {failure.message}", style="yellow"), soft_wrap=True)
 
 
 def _resolve_symbol_or_exit(graph, query: str) -> str:
@@ -124,7 +124,7 @@ def _resolve_symbol_or_exit(graph, query: str) -> str:
     if len(matches) > 1:
         console.print(f"'{query}' is ambiguous -- {len(matches)} functions match:", markup=False)
         for m in sorted(matches):
-            console.print(Text(f"  - {m}"))
+            console.print(Text(f"  - {m}"), soft_wrap=True)
         console.print("Re-run with one of the full names above.")
         raise SystemExit(1)
     return matches[0]
@@ -140,7 +140,7 @@ def cmd_scan(
     failures = get_parse_failures()
     resolved = sum(1 for _, _, d in graph.edges(data=True) if d.get("confidence") == "resolved")
     unresolved = sum(1 for _, _, d in graph.edges(data=True) if d.get("confidence") == "unresolved")
-    console.print(f"Scanned: {root}", markup=False)
+    console.print(f"Scanned: {root}", markup=False, soft_wrap=True)
     console.print(f"  functions found : {graph.number_of_nodes()}")
     console.print(f"  edges resolved  : [blue]{resolved}[/blue]")
     console.print(f"  edges unresolved: [red]{unresolved}[/red]  (flagged, not guessed)")
@@ -201,7 +201,7 @@ def cmd_impact(
 
     resolved_symbol = _resolve_symbol_or_exit(graph, symbol)
     if resolved_symbol != symbol:
-        console.print(Text(f"(matched '{symbol}' -> {resolved_symbol})"))
+        console.print(Text(f"(matched '{symbol}' -> {resolved_symbol})"), soft_wrap=True)
 
     affected = blast_radius(graph, resolved_symbol)
     if not affected:
@@ -301,7 +301,7 @@ def cmd_diff(
 
     # Print changed functions line (like matching symbol in impact)
     changed_fqns_str = ", ".join(sorted(fn.fqn for fn in changed))
-    console.print(Text(f"(changed functions: {changed_fqns_str})"))
+    console.print(Text(f"(changed functions: {changed_fqns_str})"), soft_wrap=True)
 
     # 4. Compute merged, deduplicated blast radius
     try:
@@ -347,7 +347,7 @@ def cmd_diff(
         Text(f"Blast radius of changed functions between {ref_old} and {ref_new}:")
     )
     for name in display:
-        console.print(Text(f"  - {name}"))
+        console.print(Text(f"  - {name}"), soft_wrap=True)
     _print_test_suggestions(changed_files)
     _print_parse_failures(failures)
 
