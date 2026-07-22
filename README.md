@@ -66,6 +66,25 @@ When stdout isn't a terminal (piped, or captured by a test), Rich degrades
 to plain ASCII automatically — every block below is real captured output,
 not a mockup.
 
+**Point Riftline at the actual importable package, not the repo checkout.**
+Tested live against Flask: scanning the repo root (`flask/`) resolved only
+6.1% of edges; scanning the real package (`flask/src/flask/`) resolved
+18.5% — three times better, same code. The cause is `src/`-layout repos
+(common in modern packaging): scanning from the repo root makes the module
+name `src.flask.templating` instead of `flask.templating`, so a plain
+`import flask` inside the package's own test suite never matches. If your
+target repo has a `src/<pkgname>/` (or similar nested) layout, point
+`--path` at the innermost directory that actually contains `__init__.py`,
+not the checkout root.
+
+```bash
+# Worse: resolves ~6% of edges (wrong module names get computed)
+riftline scan some-project/
+
+# Better: resolves ~19%+ of edges (module names match real imports)
+riftline scan some-project/src/some_package/
+```
+
 ### `riftline scan` — graph summary
 
 ```
